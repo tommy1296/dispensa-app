@@ -54,7 +54,6 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
       vegana: si("vegana"),
       vegetariana: si("vegetariana"),
       senzaGlutine: si("sg"),
-      preferita: si("pref"),
       ordine: uno(sp.ordine) === "recenti" ? "recenti" : "titolo",
       limite: PER_PAGINA,
       offset: (pagina - 1) * PER_PAGINA,
@@ -63,7 +62,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
   ]);
   const tutte = Object.values(conteggi).reduce((a, b) => a + (b ?? 0), 0);
   const pagine = Math.max(1, Math.ceil(totale / PER_PAGINA));
-  const filtriAttivi = [proteina, tempo, ...["asporto", "completo", "vegana", "vegetariana", "sg", "pref"].filter(si)].filter(
+  const filtriAttivi = [proteina, tempo, ...["asporto", "completo", "vegana", "vegetariana", "sg"].filter(si)].filter(
     Boolean,
   ).length;
 
@@ -139,7 +138,6 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
               ["vegana", "🌱 Vegana"],
               ["vegetariana", "Vegetariana"],
               ["sg", "Senza glutine"],
-              ["pref", "★ Preferite"],
             ].map(([k, nome]) => (
               <label key={k} className="flex items-center gap-1.5">
                 <input type="checkbox" name={k} value="1" defaultChecked={si(k)} className="accent-accento" />

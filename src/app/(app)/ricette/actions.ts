@@ -112,4 +112,5 @@ export async function invertiPreferita(form: FormData) {
   const r = await leggiRicetta(db, slug);
   if (r) await aggiornaRicetta(db, slug, { preferita: !r.preferita });
   revalidatePath(`/ricette/${slug}`);
+  revalidatePath("/preferiti");
 }

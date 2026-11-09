@@ -12,6 +12,9 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
           <Link href="/" className="rounded-lg px-2 py-1 text-sm hover:bg-superficie-2 sm:px-3">
             Ricette
           </Link>
+          <Link href="/preferiti" className="rounded-lg px-2 py-1 text-sm hover:bg-superficie-2 sm:px-3">
+            Preferite
+          </Link>
           <Link href="/storico" className="rounded-lg px-2 py-1 text-sm hover:bg-superficie-2 sm:px-3">
             Storico
           </Link>
