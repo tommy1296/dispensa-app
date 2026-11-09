@@ -1,21 +1,50 @@
 "use client";
 
+import { ImageUp, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
 import { salvaRicetta } from "@/app/(app)/ricette/actions";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Textarea } from "@/components/ui/textarea";
 import { ETICHETTA_TIPO, PROTEINE, TEMPI, TIPI, type Ricetta } from "@/lib/ricette";
+
+function Campo({ id, etichetta, children, className }: { id: string; etichetta: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`grid gap-1.5 ${className ?? ""}`}>
+      <Label htmlFor={id}>{etichetta}</Label>
+      {children}
+    </div>
+  );
+}
 
 function TreStati({ nome, etichetta, valore }: { nome: string; etichetta: string; valore: boolean | null | undefined }) {
   const v = valore === true ? "si" : valore === false ? "no" : "";
   return (
-    <label>
-      <span className="etichetta">{etichetta}</span>
-      <select name={nome} defaultValue={v} className="campo">
-        <option value="">Non indicato</option>
-        <option value="si">Sì</option>
-        <option value="no">No</option>
-      </select>
-    </label>
+    <Campo id={`r-${nome}`} etichetta={etichetta}>
+      <NativeSelect id={`r-${nome}`} name={nome} defaultValue={v}>
+        <NativeSelectOption value="">Non indicato</NativeSelectOption>
+        <NativeSelectOption value="si">Sì</NativeSelectOption>
+        <NativeSelectOption value="no">No</NativeSelectOption>
+      </NativeSelect>
+    </Campo>
+  );
+}
+
+function Sezione({ titolo, descrizione, children }: { titolo?: string; descrizione?: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-5 rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
+      {titolo && (
+        <div>
+          <h2 className="font-serif text-xl font-semibold">{titolo}</h2>
+          {descrizione && <p className="mt-0.5 text-sm text-muted-foreground">{descrizione}</p>}
+        </div>
+      )}
+      {children}
+    </section>
   );
 }
 
@@ -27,77 +56,68 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
     <form action={azione} className="space-y-6">
       {r && <input type="hidden" name="slug" value={r.slug} />}
 
-      <section className="scheda space-y-4 p-4 sm:p-6">
-        <label className="block">
-          <span className="etichetta">Titolo *</span>
-          <input name="titolo" required defaultValue={r?.titolo} className="campo text-lg" />
-        </label>
+      <Sezione>
+        <Campo id="r-titolo" etichetta="Titolo *">
+          <Input id="r-titolo" name="titolo" required defaultValue={r?.titolo} className="h-11 font-serif text-lg md:text-lg" />
+        </Campo>
         <div className="grid gap-4 sm:grid-cols-3">
-          <label>
-            <span className="etichetta">Tipo</span>
-            <select name="tipo" defaultValue={r?.tipo ?? "pasto"} className="campo">
+          <Campo id="r-tipo" etichetta="Tipo">
+            <NativeSelect id="r-tipo" name="tipo" defaultValue={r?.tipo ?? "pasto"}>
               {TIPI.map((t) => (
-                <option key={t} value={t}>
+                <NativeSelectOption key={t} value={t}>
                   {ETICHETTA_TIPO[t]}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
-          </label>
-          <label>
-            <span className="etichetta">Proteina principale</span>
-            <select name="proteina" defaultValue={r?.proteina ?? ""} className="campo">
-              <option value="">Non indicata</option>
+            </NativeSelect>
+          </Campo>
+          <Campo id="r-proteina" etichetta="Proteina principale">
+            <NativeSelect id="r-proteina" name="proteina" defaultValue={r?.proteina ?? ""}>
+              <NativeSelectOption value="">Non indicata</NativeSelectOption>
               {PROTEINE.map((p) => (
-                <option key={p}>{p}</option>
+                <NativeSelectOption key={p}>{p}</NativeSelectOption>
               ))}
-            </select>
-          </label>
-          <label>
-            <span className="etichetta">Tempo</span>
-            <select name="tempo" defaultValue={r?.tempo ?? ""} className="campo">
-              <option value="">Non indicato</option>
+            </NativeSelect>
+          </Campo>
+          <Campo id="r-tempo" etichetta="Tempo">
+            <NativeSelect id="r-tempo" name="tempo" defaultValue={r?.tempo ?? ""}>
+              <NativeSelectOption value="">Non indicato</NativeSelectOption>
               {TEMPI.map((t) => (
-                <option key={t}>{t}</option>
+                <NativeSelectOption key={t}>{t}</NativeSelectOption>
               ))}
-            </select>
-          </label>
+            </NativeSelect>
+          </Campo>
         </div>
-        <label className="block">
-          <span className="etichetta">Link alla fonte (Instagram, sito…)</span>
-          <input name="fonte_url" type="url" defaultValue={r?.fonte_url ?? ""} className="campo" placeholder="https://" />
-        </label>
-      </section>
+        <Campo id="r-fonte" etichetta="Link alla fonte (Instagram, sito…)">
+          <Input id="r-fonte" name="fonte_url" type="url" defaultValue={r?.fonte_url ?? ""} placeholder="https://" />
+        </Campo>
+      </Sezione>
 
-      <section className="scheda space-y-4 p-4 sm:p-6">
-        <h2 className="font-serif text-lg font-semibold">Ingredienti e procedimento</h2>
-        <label className="block">
-          <span className="etichetta">Ingredienti, uno per riga</span>
-          <textarea
+      <Sezione titolo="Ingredienti e procedimento">
+        <Campo id="r-ingredienti" etichetta="Ingredienti, uno per riga">
+          <Textarea
+            id="r-ingredienti"
             name="ingredienti"
             rows={8}
             defaultValue={r?.ingredienti.join("\n")}
-            className="campo font-mono text-sm"
+            className="font-mono text-sm"
             placeholder={"200 g ceci cotti\n1 zucchina\nOlio EVO e sale"}
           />
-        </label>
-        <label className="block">
-          <span className="etichetta">Procedimento</span>
-          <textarea
+        </Campo>
+        <Campo id="r-procedimento" etichetta="Procedimento">
+          <Textarea
+            id="r-procedimento"
             name="procedimento"
             rows={8}
             defaultValue={r?.procedimento ?? ""}
-            className="campo text-sm"
             placeholder={"1. Primo passaggio\n2. Secondo passaggio"}
           />
-        </label>
-        <label className="block">
-          <span className="etichetta">Note</span>
-          <textarea name="note" rows={3} defaultValue={r?.note ?? ""} className="campo text-sm" />
-        </label>
-      </section>
+        </Campo>
+        <Campo id="r-note" etichetta="Note">
+          <Textarea id="r-note" name="note" rows={3} defaultValue={r?.note ?? ""} />
+        </Campo>
+      </Sezione>
 
-      <section className="scheda space-y-4 p-4 sm:p-6">
-        <h2 className="font-serif text-lg font-semibold">Etichette</h2>
+      <Sezione titolo="Etichette" descrizione="Servono a Claude per comporre pasti completi.">
         <div className="grid gap-4 sm:grid-cols-4">
           <TreStati nome="ha_proteina" etichetta="Contiene proteina" valore={r?.ha_proteina} />
           <TreStati nome="ha_carboidrato" etichetta="Contiene carboidrato" valore={r?.ha_carboidrato} />
@@ -105,49 +125,58 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
           <TreStati nome="adatta_asporto" etichetta="Da asporto" valore={r?.adatta_asporto} />
         </div>
         <div className="grid gap-4 sm:grid-cols-4">
-          <label>
-            <span className="etichetta">Senza glutine</span>
-            <select name="senza_glutine" defaultValue={r?.senza_glutine ?? "no"} className="campo">
-              <option value="no">No</option>
-              <option value="si">Sì</option>
-              <option value="da_verificare">Da verificare</option>
-            </select>
-          </label>
-          <div className="flex flex-wrap items-end gap-x-4 gap-y-2 pb-2 text-sm sm:col-span-3">
-            {[
-              ["vegana", "🌱 Vegana", r?.vegana],
-              ["vegetariana", "Vegetariana", r?.vegetariana],
-              ["scheda_parziale", "Scheda incompleta", r?.scheda_parziale],
-              ["preferita", "★ Preferita", r?.preferita],
-            ].map(([nome, etichetta, valore]) => (
-              <label key={nome as string} className="flex items-center gap-1.5">
-                <input type="checkbox" name={nome as string} defaultChecked={!!valore} className="accent-accento" />
+          <Campo id="r-sg" etichetta="Senza glutine">
+            <NativeSelect id="r-sg" name="senza_glutine" defaultValue={r?.senza_glutine ?? "no"}>
+              <NativeSelectOption value="no">No</NativeSelectOption>
+              <NativeSelectOption value="si">Sì</NativeSelectOption>
+              <NativeSelectOption value="da_verificare">Da verificare</NativeSelectOption>
+            </NativeSelect>
+          </Campo>
+          <div className="flex flex-wrap items-end gap-2 sm:col-span-3">
+            {(
+              [
+                ["vegana", "Vegana", r?.vegana],
+                ["vegetariana", "Vegetariana", r?.vegetariana],
+                ["scheda_parziale", "Scheda incompleta", r?.scheda_parziale],
+                ["preferita", "Preferita", r?.preferita],
+              ] as const
+            ).map(([nome, etichetta, valore]) => (
+              <Label
+                key={nome}
+                className="cursor-pointer rounded-full border bg-background px-3 py-2 font-normal transition hover:bg-secondary has-[[data-state=checked]]:border-primary/40 has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground"
+              >
+                <Checkbox name={nome} defaultChecked={!!valore} />
                 {etichetta}
-              </label>
+              </Label>
             ))}
           </div>
         </div>
-      </section>
+      </Sezione>
 
-      <section className="scheda space-y-3 p-4 sm:p-6">
-        <h2 className="font-serif text-lg font-semibold">Foto</h2>
-        <input name="foto" type="file" accept="image/*" className="block text-sm" />
+      <Sezione titolo="Foto" descrizione="Massimo 5 MB.">
+        <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-accent/30">
+          <ImageUp className="size-7 text-primary" />
+          <span>Scegli una foto dal telefono o dal computer</span>
+          <input name="foto" type="file" accept="image/*" className="max-w-full text-xs file:mr-2 file:rounded-full file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:font-medium file:text-foreground" />
+        </label>
         {r?.immagine_url && (
-          <label className="flex items-center gap-1.5 text-sm">
-            <input type="checkbox" name="rimuovi_foto" className="accent-accento" /> Rimuovi la foto attuale
-          </label>
+          <Label className="cursor-pointer font-normal">
+            <Checkbox name="rimuovi_foto" /> Rimuovi la foto attuale
+          </Label>
         )}
-        <p className="text-xs text-testo-tenue">Massimo 5 MB.</p>
-      </section>
+      </Sezione>
 
-      {stato?.errore && <p className="text-sm text-red-700 dark:text-red-400">{stato.errore}</p>}
-      <div className="flex gap-3">
-        <button type="submit" disabled={inCorso} className="bottone-primario">
+      {stato?.errore && (
+        <p className="rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">{stato.errore}</p>
+      )}
+      <div className="sticky bottom-20 z-10 flex gap-3 rounded-full border bg-background/85 p-2 shadow-lg backdrop-blur-lg md:bottom-4">
+        <Button type="submit" disabled={inCorso} size="lg" className="flex-1 rounded-full sm:flex-none">
+          {inCorso ? <Loader2 className="animate-spin" /> : <Save />}
           {inCorso ? "Salvataggio…" : "Salva ricetta"}
-        </button>
-        <Link href={r ? `/ricette/${r.slug}` : "/"} className="bottone-secondario">
-          Annulla
-        </Link>
+        </Button>
+        <Button asChild variant="ghost" size="lg" className="rounded-full">
+          <Link href={r ? `/ricette/${r.slug}` : "/"}>Annulla</Link>
+        </Button>
       </div>
     </form>
   );

@@ -1,5 +1,13 @@
+import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
+import { IconaTipo } from "@/components/icona-tipo";
 import { SchedaRicetta } from "@/components/scheda-ricetta";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   ETICHETTA_TIPO,
   PROTEINE,
@@ -12,6 +20,7 @@ import {
   type Tipo,
 } from "@/lib/ricette";
 import { supabaseServer } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 
 const PER_PAGINA = 24;
 
@@ -68,120 +77,166 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
 
   return (
     <main>
+      <div className="mb-6">
+        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Cosa cuciniamo oggi?</h1>
+        <p className="mt-1 text-muted-foreground">{tutte} ricette nella tua dispensa.</p>
+      </div>
+
       <form action="/" className="flex gap-2">
         {Object.entries(sp)
           .filter(([k]) => !["q", "pagina"].includes(k))
           .map(([k, v]) => (
             <input key={k} type="hidden" name={k} value={uno(v)} />
           ))}
-        <input
-          name="q"
-          defaultValue={testo}
-          placeholder="Cerca per nome o ingrediente: zucca, ceci, tofu…"
-          className="campo flex-1 py-2.5"
-          type="search"
-        />
-        <button className="bottone-primario">Cerca</button>
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            name="q"
+            defaultValue={testo}
+            placeholder="Cerca per nome o ingrediente: zucca, ceci, tofu…"
+            className="h-11 rounded-full bg-card pl-10 shadow-sm"
+            type="search"
+          />
+        </div>
+        <Button size="lg" className="h-11 rounded-full px-5">
+          Cerca
+        </Button>
       </form>
 
-      <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        <Link href={link(sp, { tipo: null })} className={`chip shrink-0 px-3 py-1 text-sm ${!tipo ? "chip-attivo" : ""}`}>
-          Tutte · {tutte}
-        </Link>
+      <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+        <Chip href={link(sp, { tipo: null })} attivo={!tipo}>
+          <LayoutGrid className="size-4" /> Tutte <span className="opacity-60">{tutte}</span>
+        </Chip>
         {TIPI.filter((t) => conteggi[t]).map((t) => (
-          <Link
-            key={t}
-            href={link(sp, { tipo: t })}
-            className={`chip shrink-0 px-3 py-1 text-sm ${tipo === t ? "chip-attivo" : ""}`}
-          >
-            {ETICHETTA_TIPO[t]} · {conteggi[t]}
-          </Link>
+          <Chip key={t} href={link(sp, { tipo: t })} attivo={tipo === t}>
+            <IconaTipo tipo={t} className="size-4" /> {ETICHETTA_TIPO[t]} <span className="opacity-60">{conteggi[t]}</span>
+          </Chip>
         ))}
       </div>
 
-      <details className="scheda mt-3 p-3" open={filtriAttivi > 0}>
-        <summary className="cursor-pointer text-sm font-medium">
-          Filtri{filtriAttivi > 0 && <span className="chip chip-attivo ml-2">{filtriAttivi}</span>}
+      <details className="group mt-3 rounded-2xl border bg-card shadow-sm" open={filtriAttivi > 0}>
+        <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+          <SlidersHorizontal className="size-4 text-muted-foreground" />
+          Filtri
+          {filtriAttivi > 0 && <Badge className="h-5 min-w-5 rounded-full px-1.5">{filtriAttivi}</Badge>}
+          <ChevronDown className="ml-auto size-4 text-muted-foreground transition group-open:rotate-180" />
         </summary>
-        <form action="/" className="mt-3 grid gap-3 sm:grid-cols-4">
+        <form action="/" className="grid gap-4 border-t px-4 pt-4 pb-4 sm:grid-cols-3">
           {testo && <input type="hidden" name="q" value={testo} />}
           {tipo && <input type="hidden" name="tipo" value={tipo} />}
-          <label>
-            <span className="etichetta">Proteina</span>
-            <select name="proteina" defaultValue={proteina} className="campo">
-              <option value="">Tutte</option>
+          <div className="grid gap-1.5">
+            <Label htmlFor="f-proteina">Proteina</Label>
+            <NativeSelect id="f-proteina" name="proteina" defaultValue={proteina}>
+              <NativeSelectOption value="">Tutte</NativeSelectOption>
               {PROTEINE.map((p) => (
-                <option key={p}>{p}</option>
+                <NativeSelectOption key={p}>{p}</NativeSelectOption>
               ))}
-            </select>
-          </label>
-          <label>
-            <span className="etichetta">Tempo</span>
-            <select name="tempo" defaultValue={tempo} className="campo">
-              <option value="">Qualsiasi</option>
+            </NativeSelect>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="f-tempo">Tempo</Label>
+            <NativeSelect id="f-tempo" name="tempo" defaultValue={tempo}>
+              <NativeSelectOption value="">Qualsiasi</NativeSelectOption>
               {TEMPI.map((t) => (
-                <option key={t}>{t}</option>
+                <NativeSelectOption key={t}>{t}</NativeSelectOption>
               ))}
-            </select>
-          </label>
-          <label>
-            <span className="etichetta">Ordine</span>
-            <select name="ordine" defaultValue={uno(sp.ordine)} className="campo">
-              <option value="">Alfabetico</option>
-              <option value="recenti">Aggiunte di recente</option>
-            </select>
-          </label>
-          <div className="flex flex-wrap content-end gap-x-4 gap-y-2 text-sm sm:col-span-4">
+            </NativeSelect>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="f-ordine">Ordine</Label>
+            <NativeSelect id="f-ordine" name="ordine" defaultValue={uno(sp.ordine)}>
+              <NativeSelectOption value="">Alfabetico</NativeSelectOption>
+              <NativeSelectOption value="recenti">Aggiunte di recente</NativeSelectOption>
+            </NativeSelect>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:col-span-3">
             {[
-              ["asporto", "🧊 Da asporto"],
+              ["asporto", "Da asporto"],
               ["completo", "Pasto completo"],
-              ["vegana", "🌱 Vegana"],
+              ["vegana", "Vegana"],
               ["vegetariana", "Vegetariana"],
               ["sg", "Senza glutine"],
             ].map(([k, nome]) => (
-              <label key={k} className="flex items-center gap-1.5">
-                <input type="checkbox" name={k} value="1" defaultChecked={si(k)} className="accent-accento" />
+              <Label
+                key={k}
+                className="cursor-pointer rounded-full border bg-background px-3 py-2 font-normal transition hover:bg-secondary has-[[data-state=checked]]:border-primary/40 has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground"
+              >
+                <Checkbox name={k} value="1" defaultChecked={si(k)} />
                 {nome}
-              </label>
+              </Label>
             ))}
           </div>
-          <div className="flex gap-2 sm:col-span-4">
-            <button className="bottone-primario">Applica</button>
-            <Link href={link({}, { tipo: tipo || null, q: testo || null })} className="bottone-secondario">
-              Azzera
-            </Link>
+          <div className="flex gap-2 sm:col-span-3">
+            <Button className="rounded-full">Applica</Button>
+            <Button asChild variant="ghost" className="rounded-full">
+              <Link href={link({}, { tipo: tipo || null, q: testo || null })}>Azzera</Link>
+            </Button>
           </div>
         </form>
       </details>
 
-      <p className="mt-5 text-sm text-testo-tenue">
-        {totale === 0 ? "Nessuna ricetta trovata." : totale === 1 ? "1 ricetta" : `${totale} ricette`}
+      <p className="mt-6 text-sm text-muted-foreground">
+        {totale === 1 ? "1 ricetta" : `${totale} ricette`}
         {testo && <> per «{testo}»</>}
       </p>
 
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {ricette.map((r) => (
-          <SchedaRicetta key={r.id} r={r} />
-        ))}
-      </div>
+      {totale === 0 ? (
+        <div className="mt-4 flex flex-col items-center rounded-2xl border border-dashed px-6 py-16 text-center">
+          <SearchX className="size-10 text-muted-foreground/60" />
+          <p className="mt-3 font-medium">Nessuna ricetta trovata</p>
+          <p className="mt-1 text-sm text-muted-foreground">Prova con un altro ingrediente o togli qualche filtro.</p>
+        </div>
+      ) : (
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          {ricette.map((r) => (
+            <SchedaRicetta key={r.id} r={r} />
+          ))}
+        </div>
+      )}
 
       {pagine > 1 && (
-        <nav className="mt-8 flex items-center justify-center gap-3 text-sm">
-          {pagina > 1 && (
-            <Link className="bottone-secondario" href={link(sp, { pagina: String(pagina - 1) })}>
-              ← Indietro
-            </Link>
+        <nav className="mt-10 flex items-center justify-center gap-3 text-sm">
+          {pagina > 1 ? (
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href={link(sp, { pagina: String(pagina - 1) })}>
+                <ChevronLeft /> Indietro
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" className="rounded-full" disabled>
+              <ChevronLeft /> Indietro
+            </Button>
           )}
-          <span className="text-testo-tenue">
-            Pagina {pagina} di {pagine}
+          <span className="text-muted-foreground tabular-nums">
+            {pagina} / {pagine}
           </span>
-          {pagina < pagine && (
-            <Link className="bottone-secondario" href={link(sp, { pagina: String(pagina + 1) })}>
-              Avanti →
-            </Link>
+          {pagina < pagine ? (
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href={link(sp, { pagina: String(pagina + 1) })}>
+                Avanti <ChevronRight />
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" className="rounded-full" disabled>
+              Avanti <ChevronRight />
+            </Button>
           )}
         </nav>
       )}
     </main>
+  );
+}
+
+function Chip({ href, attivo, children }: { href: string; attivo: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex shrink-0 items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-sm font-medium whitespace-nowrap shadow-xs transition hover:border-primary/30 hover:bg-accent/50",
+        attivo && "border-primary bg-primary text-primary-foreground hover:border-primary hover:bg-primary/90",
+      )}
+    >
+      {children}
+    </Link>
   );
 }

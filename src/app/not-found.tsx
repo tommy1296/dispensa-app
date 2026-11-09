@@ -1,13 +1,20 @@
+import { ArrowLeft, SearchX } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function NonTrovato() {
   return (
-    <main className="mx-auto max-w-md px-4 py-24 text-center">
-      <div className="text-5xl">🥄</div>
-      <h1 className="mt-4 font-serif text-2xl font-semibold">Qui non c&apos;è niente</h1>
-      <Link href="/" className="bottone-primario mt-6">
-        Torna alle ricette
-      </Link>
+    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 text-center">
+      <span className="flex size-16 items-center justify-center rounded-full bg-accent text-primary">
+        <SearchX className="size-7" />
+      </span>
+      <h1 className="mt-5 font-serif text-3xl font-semibold tracking-tight">Qui non c&apos;è niente</h1>
+      <p className="mt-2 text-muted-foreground">La pagina che cerchi non esiste o la ricetta è stata eliminata.</p>
+      <Button asChild className="mt-6 rounded-full">
+        <Link href="/">
+          <ArrowLeft /> Torna alle ricette
+        </Link>
+      </Button>
     </main>
   );
 }

@@ -1,3 +1,5 @@
+import { KeyRound, TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { trovaClient } from "@/lib/oauth";
 import { rispondi } from "./actions";
 
@@ -6,9 +8,10 @@ export const metadata = { title: "Collega Claude · Dispensa" };
 function Errore({ testo }: { testo: string }) {
   return (
     <main className="mx-auto max-w-md px-4 py-16">
-      <div className="scheda p-6">
-        <h1 className="font-serif text-2xl font-semibold">Collegamento non valido</h1>
-        <p className="mt-2 text-testo-tenue">{testo}</p>
+      <div className="rounded-3xl border bg-card p-6 shadow-sm">
+        <TriangleAlert className="size-8 text-destructive" />
+        <h1 className="mt-3 font-serif text-2xl font-semibold">Collegamento non valido</h1>
+        <p className="mt-2 text-muted-foreground">{testo}</p>
       </div>
     </main>
   );
@@ -29,25 +32,27 @@ export default async function Autorizza({ searchParams }: PageProps<"/oauth/auth
   const host = new URL(p("redirect_uri")).host;
   return (
     <main className="mx-auto max-w-md px-4 py-16">
-      <div className="scheda p-6">
-        <div className="text-4xl">🔑</div>
+      <div className="rounded-3xl border bg-card p-6 shadow-xl shadow-primary/5">
+        <span className="flex size-12 items-center justify-center rounded-2xl bg-accent text-primary">
+          <KeyRound className="size-6" />
+        </span>
         <h1 className="mt-3 font-serif text-2xl font-semibold">Collegare {client.nome}?</h1>
-        <p className="mt-2 text-testo-tenue">
+        <p className="mt-2 text-muted-foreground">
           {client.nome} potrà cercare, leggere, aggiungere e modificare le ricette e registrare i pasti nello storico.
         </p>
-        <p className="mt-3 text-sm text-testo-tenue">
-          Dopo la conferma tornerai su <strong className="text-testo">{host}</strong>.
+        <p className="mt-3 text-sm text-muted-foreground">
+          Dopo la conferma tornerai su <strong className="text-foreground">{host}</strong>.
         </p>
         <form action={rispondi} className="mt-6 flex gap-3">
           {["client_id", "redirect_uri", "state", "code_challenge"].map((k) => (
             <input key={k} type="hidden" name={k} value={p(k)} />
           ))}
-          <button name="decisione" value="nega" className="bottone-secondario flex-1">
+          <Button name="decisione" value="nega" variant="outline" size="lg" className="flex-1 rounded-full">
             Annulla
-          </button>
-          <button name="decisione" value="consenti" className="bottone-primario flex-1">
+          </Button>
+          <Button name="decisione" value="consenti" size="lg" className="flex-1 rounded-full">
             Consenti
-          </button>
+          </Button>
         </form>
       </div>
     </main>
