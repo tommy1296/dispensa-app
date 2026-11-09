@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 // Percorsi raggiungibili senza login: il server MCP ha il suo controllo con i token.
 const PUBBLICI = ["/login", "/mcp", "/well-known", "/.well-known", "/oauth/token", "/oauth/register"];
@@ -12,8 +13,8 @@ export async function proxy(request: NextRequest) {
 
   let risposta = NextResponse.next({ request });
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
     {
       cookies: {
         getAll: () => request.cookies.getAll(),
