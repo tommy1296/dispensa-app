@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --sfondo: #faf6ef;
+  --superficie: #ffffff;
+  --superficie-2: #f3ece0;
+  --testo: #2b2420;
+  --testo-tenue: #6f6359;
+  --bordo: #e6dccd;
+  --accento: #b4532a;
+  --accento-scuro: #8f3f1d;
+  --accento-tenue: #f6e3d6;
+  --verde: #4f7a3a;
+  --verde-tenue: #e3eedb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sfondo: #191513;
+    --superficie: #231e1b;
+    --superficie-2: #2d2622;
+    --testo: #f2ebe3;
+    --testo-tenue: #b3a698;
+    --bordo: #3a322c;
+    --accento: #e07a4b;
+    --accento-scuro: #f09468;
+    --accento-tenue: #3d261b;
+    --verde: #9cc483;
+    --verde-tenue: #24301d;
+  }
+}
+
+@theme inline {
+  --color-sfondo: var(--sfondo);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-testo: var(--testo);
+  --color-testo-tenue: var(--testo-tenue);
+  --color-bordo: var(--bordo);
+  --color-accento: var(--accento);
+  --color-accento-scuro: var(--accento-scuro);
+  --color-accento-tenue: var(--accento-tenue);
+  --color-verde: var(--verde);
+  --color-verde-tenue: var(--verde-tenue);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+body {
+  background: var(--sfondo);
+  color: var(--testo);
+  font-family: var(--font-sans);
+}
+
+@layer components {
+  .scheda {
+    @apply rounded-2xl border border-bordo bg-superficie shadow-sm;
+  }
+  .etichetta {
+    @apply mb-1 block text-sm font-medium text-testo-tenue;
+  }
+  .campo {
+    @apply w-full rounded-xl border border-bordo bg-superficie px-3 py-2 text-testo outline-none transition focus:border-accento focus:ring-2 focus:ring-accento/20;
+  }
+  .bottone-primario {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accento px-4 py-2 font-medium text-white transition hover:bg-accento-scuro disabled:opacity-60 dark:text-sfondo;
+  }
+  .bottone-secondario {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-bordo bg-superficie px-4 py-2 font-medium text-testo transition hover:bg-superficie-2 disabled:opacity-60;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-superficie-2 px-2.5 py-0.5 text-xs font-medium text-testo-tenue;
+  }
+  .chip-attivo {
+    @apply bg-accento text-white dark:text-sfondo;
+  }
+  .prosa ol {
+    @apply list-decimal space-y-2 pl-5;
+  }
+  .prosa ul {
+    @apply list-disc space-y-1 pl-5;
+  }
+  .prosa p {
+    @apply my-2;
+  }
+}
