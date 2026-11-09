@@ -1,3 +1,4 @@
+import { Logo } from "@/components/logo";
 import { FormAccesso } from "./form-accesso";
 
 export const metadata = { title: "Accedi · Dispensa" };
@@ -5,14 +6,20 @@ export const metadata = { title: "Accedi · Dispensa" };
 export default async function PaginaLogin({ searchParams }: PageProps<"/login">) {
   const { next } = await searchParams;
   return (
-    <main className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center px-4">
-      <div className="mb-8 text-center">
-        <div className="text-5xl">🫙</div>
-        <h1 className="mt-3 font-serif text-3xl font-semibold">Dispensa</h1>
-        <p className="mt-1 text-sm text-testo-tenue">Il ricettario di casa</p>
-      </div>
-      <div className="scheda p-6">
-        <FormAccesso next={typeof next === "string" ? next : "/"} />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--accent),transparent_60%)]"
+      />
+      <div className="relative w-full max-w-sm">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <Logo grande />
+          <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight">Dispensa</h1>
+          <p className="mt-1 text-muted-foreground">Il ricettario di casa</p>
+        </div>
+        <div className="rounded-3xl border bg-card p-6 shadow-xl shadow-primary/5">
+          <FormAccesso next={typeof next === "string" ? next : "/"} />
+        </div>
       </div>
     </main>
   );

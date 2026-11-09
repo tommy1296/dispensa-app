@@ -1,29 +1,38 @@
+import { Heart } from "lucide-react";
 import Link from "next/link";
-import type { RicettaInElenco } from "@/lib/ricette";
+import { ETICHETTA_TIPO, type RicettaInElenco } from "@/lib/ricette";
 import { Copertina } from "./copertina";
-import { Componenti } from "./etichette";
+import { Etichette } from "./etichette";
 
 export function SchedaRicetta({ r }: { r: RicettaInElenco }) {
   return (
     <Link
       href={`/ricette/${r.slug}`}
-      className="scheda group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Copertina tipo={r.tipo} immagine={r.immagine_url} titolo={r.titolo} />
+        <Copertina
+          tipo={r.tipo}
+          immagine={r.immagine_url}
+          titolo={r.titolo}
+          className="transition duration-500 group-hover:scale-105"
+        />
         {r.preferita && (
-          <span className="absolute right-2 top-2 rounded-full bg-superficie/90 px-2 py-0.5 text-sm" title="Preferita">
-            ★
+          <span
+            className="absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-card/90 text-primary shadow-sm backdrop-blur"
+            title="Preferita"
+          >
+            <Heart className="size-4 fill-current" />
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <h3 className="font-serif text-lg leading-snug font-medium group-hover:text-accento">{r.titolo}</h3>
-        <div className="mt-auto flex flex-wrap items-center gap-1.5">
-          {r.tipo === "pasto" && <Componenti r={r} />}
-          {r.tempo && <span className="chip">⏱ {r.tempo}</span>}
-          {r.adatta_asporto && <span className="chip">🧊 asporto</span>}
-          {r.vegana ? <span className="chip">🌱 vegana</span> : r.vegetariana && <span className="chip">🥚 vegetariana</span>}
+      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
+        <p className="text-[11px] font-semibold tracking-wider text-primary uppercase">{ETICHETTA_TIPO[r.tipo]}</p>
+        <h3 className="font-serif text-base leading-snug font-medium text-balance transition-colors group-hover:text-primary sm:text-lg">
+          {r.titolo}
+        </h3>
+        <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
+          <Etichette r={r} />
         </div>
       </div>
     </Link>

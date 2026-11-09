@@ -1,86 +1,133 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Il tema scuro segue l'impostazione del sistema. */
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
+/*
+ * Palette calda di Dispensa (terracotta, crema, salvia) nei nomi che usano
+ * i componenti shadcn/ui (src/components/ui).
+ */
 :root {
-  --sfondo: #faf6ef;
-  --superficie: #ffffff;
-  --superficie-2: #f3ece0;
-  --testo: #2b2420;
-  --testo-tenue: #6f6359;
-  --bordo: #e6dccd;
-  --accento: #b4532a;
-  --accento-scuro: #8f3f1d;
-  --accento-tenue: #f6e3d6;
+  --radius: 0.875rem;
+
+  --background: #faf6ef;
+  --foreground: #2b2420;
+  --card: #ffffff;
+  --card-foreground: #2b2420;
+  --popover: #ffffff;
+  --popover-foreground: #2b2420;
+  --primary: #b4532a;
+  --primary-foreground: #fffaf5;
+  --secondary: #f3ece0;
+  --secondary-foreground: #3d332c;
+  --muted: #f3ece0;
+  --muted-foreground: #6f6359;
+  --accent: #f6e3d6;
+  --accent-foreground: #8f3f1d;
+  --destructive: #b42318;
+  --border: #e6dccd;
+  --input: #ddd1bf;
+  --ring: #d08a63;
+
   --verde: #4f7a3a;
   --verde-tenue: #e3eedb;
+  --ambra: #a8650f;
+  --ambra-tenue: #fbecd2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --sfondo: #191513;
-    --superficie: #231e1b;
-    --superficie-2: #2d2622;
-    --testo: #f2ebe3;
-    --testo-tenue: #b3a698;
-    --bordo: #3a322c;
-    --accento: #e07a4b;
-    --accento-scuro: #f09468;
-    --accento-tenue: #3d261b;
+    --background: #171311;
+    --foreground: #f2ebe3;
+    --card: #211c19;
+    --card-foreground: #f2ebe3;
+    --popover: #262019;
+    --popover-foreground: #f2ebe3;
+    --primary: #e07a4b;
+    --primary-foreground: #1d120c;
+    --secondary: #2d2622;
+    --secondary-foreground: #e9dfd4;
+    --muted: #2d2622;
+    --muted-foreground: #b3a698;
+    --accent: #3d261b;
+    --accent-foreground: #f4a47c;
+    --destructive: #e5534b;
+    --border: #3a322c;
+    --input: #4a4038;
+    --ring: #a8562f;
+
     --verde: #9cc483;
     --verde-tenue: #24301d;
+    --ambra: #f0b45b;
+    --ambra-tenue: #3a2a12;
   }
 }
 
 @theme inline {
-  --color-sfondo: var(--sfondo);
-  --color-superficie: var(--superficie);
-  --color-superficie-2: var(--superficie-2);
-  --color-testo: var(--testo);
-  --color-testo-tenue: var(--testo-tenue);
-  --color-bordo: var(--bordo);
-  --color-accento: var(--accento);
-  --color-accento-scuro: var(--accento-scuro);
-  --color-accento-tenue: var(--accento-tenue);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: calc(var(--radius) - 2px);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 6px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
   --color-verde: var(--verde);
   --color-verde-tenue: var(--verde-tenue);
+  --color-ambra: var(--ambra);
+  --color-ambra-tenue: var(--ambra-tenue);
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
 }
 
-body {
-  background: var(--sfondo);
-  color: var(--testo);
-  font-family: var(--font-sans);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
 }
 
 @layer components {
-  .scheda {
-    @apply rounded-2xl border border-bordo bg-superficie shadow-sm;
-  }
-  .etichetta {
-    @apply mb-1 block text-sm font-medium text-testo-tenue;
-  }
-  .campo {
-    @apply w-full rounded-xl border border-bordo bg-superficie px-3 py-2 text-testo outline-none transition focus:border-accento focus:ring-2 focus:ring-accento/20;
-  }
-  .bottone-primario {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accento px-4 py-2 font-medium text-white transition hover:bg-accento-scuro disabled:opacity-60 dark:text-sfondo;
-  }
-  .bottone-secondario {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-bordo bg-superficie px-4 py-2 font-medium text-testo transition hover:bg-superficie-2 disabled:opacity-60;
-  }
-  .chip {
-    @apply inline-flex items-center gap-1 rounded-full bg-superficie-2 px-2.5 py-0.5 text-xs font-medium text-testo-tenue;
-  }
-  .chip-attivo {
-    @apply bg-accento text-white dark:text-sfondo;
+  /* Testo delle ricette: passaggi numerati con un cerchietto. */
+  .prosa {
+    @apply leading-relaxed;
   }
   .prosa ol {
-    @apply list-decimal space-y-2 pl-5;
+    counter-reset: passo;
+    @apply space-y-4;
+  }
+  .prosa ol > li {
+    counter-increment: passo;
+    @apply relative pl-10;
+  }
+  .prosa ol > li::before {
+    content: counter(passo);
+    @apply absolute top-0 left-0 flex size-7 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground;
   }
   .prosa ul {
-    @apply list-disc space-y-1 pl-5;
+    @apply list-disc space-y-1 pl-5 marker:text-primary;
   }
   .prosa p {
     @apply my-2;
