@@ -2,7 +2,7 @@ import { Check, Heart } from "lucide-react";
 import Link from "next/link";
 import { ETICHETTA_TIPO, type RicettaInElenco } from "@/lib/ricette";
 import { Copertina } from "./copertina";
-import { Componenti, MetaRicetta } from "./etichette";
+import { MetaRicetta } from "./etichette";
 
 export function SchedaRicetta({ r }: { r: RicettaInElenco }) {
   return (
@@ -38,11 +38,6 @@ export function SchedaRicetta({ r }: { r: RicettaInElenco }) {
       <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
         <h3 className="line-clamp-2 font-serif text-base leading-snug font-semibold text-balance sm:text-[17px]">{r.titolo}</h3>
         <MetaRicetta r={r} />
-        {r.tipo === "pasto" && (
-          <div className="mt-auto pt-2">
-            <Componenti r={r} />
-          </div>
-        )}
       </div>
     </Link>
   );
