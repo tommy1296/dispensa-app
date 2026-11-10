@@ -5,62 +5,73 @@
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 /*
- * Palette calda di Dispensa (terracotta, crema, salvia) nei nomi che usano
- * i componenti shadcn/ui (src/components/ui).
+ * Palette ispirata a "Plate": fondo grigio-salvia chiaro, card bianche senza
+ * bordo, verde bosco come colore principale e lime come accento. I colori di
+ * proteina, carboidrato e verdura richiamano i macro delle app nutrizionali.
  */
 :root {
-  --radius: 0.875rem;
+  --radius: 1rem;
 
-  --background: #faf6ef;
-  --foreground: #2b2420;
+  --background: #f3f4ef;
+  --foreground: #17211b;
   --card: #ffffff;
-  --card-foreground: #2b2420;
+  --card-foreground: #17211b;
   --popover: #ffffff;
-  --popover-foreground: #2b2420;
-  --primary: #b4532a;
-  --primary-foreground: #fffaf5;
-  --secondary: #f3ece0;
-  --secondary-foreground: #3d332c;
-  --muted: #f3ece0;
-  --muted-foreground: #6f6359;
-  --accent: #f6e3d6;
-  --accent-foreground: #8f3f1d;
-  --destructive: #b42318;
-  --border: #e6dccd;
-  --input: #ddd1bf;
-  --ring: #d08a63;
+  --popover-foreground: #17211b;
+  --primary: #1f3d2f;
+  --primary-foreground: #ffffff;
+  --secondary: #eceee7;
+  --secondary-foreground: #26332b;
+  --muted: #eceee7;
+  --muted-foreground: #6b746c;
+  --accent: #dcf5a0;
+  --accent-foreground: #1f3d2f;
+  --destructive: #d14343;
+  --border: #e4e7df;
+  --input: #dde1d7;
+  --ring: #9fcf5a;
 
-  --verde: #4f7a3a;
-  --verde-tenue: #e3eedb;
-  --ambra: #a8650f;
-  --ambra-tenue: #fbecd2;
+  --lime: #c8ef6e;
+  --verde: #2f7a4b;
+  --verde-tenue: #e2f3e6;
+  --ambra: #b86e0b;
+  --ambra-tenue: #fcefd7;
+
+  --macro-proteina: #f2875c;
+  --macro-carboidrato: #f4bf3f;
+  --macro-verdura: #5bb36f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #171311;
-    --foreground: #f2ebe3;
-    --card: #211c19;
-    --card-foreground: #f2ebe3;
-    --popover: #262019;
-    --popover-foreground: #f2ebe3;
-    --primary: #e07a4b;
-    --primary-foreground: #1d120c;
-    --secondary: #2d2622;
-    --secondary-foreground: #e9dfd4;
-    --muted: #2d2622;
-    --muted-foreground: #b3a698;
-    --accent: #3d261b;
-    --accent-foreground: #f4a47c;
-    --destructive: #e5534b;
-    --border: #3a322c;
-    --input: #4a4038;
-    --ring: #a8562f;
+    --background: #0f1411;
+    --foreground: #eef2ec;
+    --card: #182019;
+    --card-foreground: #eef2ec;
+    --popover: #1c251e;
+    --popover-foreground: #eef2ec;
+    --primary: #c8ef6e;
+    --primary-foreground: #142019;
+    --secondary: #222c24;
+    --secondary-foreground: #dfe6dc;
+    --muted: #222c24;
+    --muted-foreground: #a0aa9f;
+    --accent: #2d3d22;
+    --accent-foreground: #d6f39a;
+    --destructive: #ef6461;
+    --border: #2a352c;
+    --input: #344036;
+    --ring: #7fa944;
 
-    --verde: #9cc483;
-    --verde-tenue: #24301d;
-    --ambra: #f0b45b;
-    --ambra-tenue: #3a2a12;
+    --lime: #c8ef6e;
+    --verde: #8fd39f;
+    --verde-tenue: #1d3324;
+    --ambra: #f2bd63;
+    --ambra-tenue: #3a2c12;
+
+    --macro-proteina: #f59a75;
+    --macro-carboidrato: #f6cc5f;
+    --macro-verdura: #74c487;
   }
 }
 
@@ -90,13 +101,18 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-lime: var(--lime);
+  --color-proteina: var(--macro-proteina);
+  --color-carboidrato: var(--macro-carboidrato);
+  --color-verdura: var(--macro-verdura);
   --color-verde: var(--verde);
   --color-verde-tenue: var(--verde-tenue);
   --color-ambra: var(--ambra);
   --color-ambra-tenue: var(--ambra-tenue);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-morbida: 0 1px 2px rgb(23 33 27 / 0.04), 0 8px 24px -12px rgb(23 33 27 / 0.12);
 }
 
 @layer base {
@@ -124,7 +140,7 @@
   }
   .prosa ol > li::before {
     content: counter(passo);
-    @apply absolute top-0 left-0 flex size-7 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground;
+    @apply absolute top-0 left-0 flex size-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground;
   }
   .prosa ul {
     @apply list-disc space-y-1 pl-5 marker:text-primary;

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Copertina } from "@/components/copertina";
 import { EliminaRicetta } from "@/components/elimina-ricetta";
-import { Etichette } from "@/components/etichette";
+import { Componenti, Etichette, PastoCompleto } from "@/components/etichette";
 import { IconaTipo } from "@/components/icona-tipo";
 import { ListaIngredienti } from "@/components/lista-ingredienti";
 import { TestoSemplice } from "@/components/testo-semplice";
@@ -33,26 +33,31 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
         </Link>
       </Button>
 
-      <div className="mt-3 grid gap-6 md:grid-cols-[5fr_6fr] md:gap-10">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border shadow-sm md:aspect-square">
+      <div className="mt-3 grid gap-5 rounded-[32px] bg-card p-2 shadow-morbida sm:p-3 md:grid-cols-[5fr_6fr] md:gap-8">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[26px] md:aspect-square">
           <Copertina tipo={r.tipo} immagine={r.immagine_url} titolo={r.titolo} grande />
+          <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-card/90 px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur">
+            <IconaTipo tipo={r.tipo} className="size-4" /> {ETICHETTA_TIPO[r.tipo]}
+          </span>
         </div>
 
-        <div className="flex flex-col justify-center">
-          <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-primary uppercase">
-            <IconaTipo tipo={r.tipo} className="size-4" /> {ETICHETTA_TIPO[r.tipo]}
-          </p>
-          <h1 className="mt-2 font-serif text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-            {r.titolo}
-          </h1>
+        <div className="flex flex-col justify-center px-3 pb-4 md:py-4 md:pr-6 md:pl-0">
+          {r.tipo === "pasto" && r.pasto_completo && <PastoCompleto className="mb-3" />}
+          <h1 className="text-3xl leading-tight font-bold tracking-tight text-balance sm:text-4xl">{r.titolo}</h1>
 
-          <div className="mt-5 flex flex-wrap gap-1.5">
+          <div className="mt-4 flex flex-wrap gap-1.5">
             <Etichette r={r} estese />
             {r.proteina && <Badge variant="outline">Proteina: {r.proteina}</Badge>}
           </div>
 
+          {r.tipo === "pasto" && (
+            <div className="mt-5">
+              <Componenti r={r} grande />
+            </div>
+          )}
+
           {(r.scheda_parziale || r.etichette_stimate) && (
-            <div className="mt-5 flex gap-3 rounded-2xl border border-ambra/20 bg-ambra-tenue p-4 text-sm">
+            <div className="mt-5 flex gap-3 rounded-2xl bg-ambra-tenue p-4 text-sm">
               <Info className="mt-0.5 size-4 shrink-0 text-ambra" />
               <div className="space-y-1">
                 {r.scheda_parziale && <p>Scheda incompleta: per dosi o passaggi mancanti guarda la fonte.</p>}
@@ -76,7 +81,7 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
               <Button
                 variant="outline"
                 size="lg"
-                className={cn("rounded-full", r.preferita && "border-primary/40 bg-accent text-accent-foreground hover:bg-accent/80")}
+                className={cn("rounded-full", r.preferita && "border-transparent bg-accent text-accent-foreground hover:bg-accent/80")}
                 title={r.preferita ? "Togli dalle preferite" : "Aggiungi alle preferite"}
               >
                 <Heart className={cn(r.preferita && "fill-current")} /> {r.preferita ? "Preferita" : "Aggiungi alle preferite"}
@@ -91,12 +96,12 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
         </div>
       </div>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-[5fr_6fr] md:gap-10">
-        <section className="h-fit rounded-3xl border bg-card p-5 shadow-sm sm:p-6 md:sticky md:top-24">
-          <h2 className="flex items-baseline justify-between font-serif text-2xl font-semibold">
+      <div className="mt-5 grid gap-5 md:grid-cols-[5fr_6fr]">
+        <section className="h-fit rounded-[28px] bg-card p-5 shadow-morbida sm:p-6 md:sticky md:top-24">
+          <h2 className="flex items-baseline justify-between text-2xl font-bold tracking-tight">
             Ingredienti
             {r.ingredienti.length > 0 && (
-              <span className="font-sans text-sm font-normal text-muted-foreground">{r.ingredienti.length}</span>
+              <span className="rounded-full bg-secondary px-2.5 py-0.5 text-sm font-semibold text-muted-foreground">{r.ingredienti.length}</span>
             )}
           </h2>
           <div className="mt-4">
@@ -108,8 +113,8 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
           </div>
         </section>
 
-        <section className="px-1">
-          <h2 className="font-serif text-2xl font-semibold">Procedimento</h2>
+        <section className="rounded-[28px] bg-card p-5 shadow-morbida sm:p-6">
+          <h2 className="text-2xl font-bold tracking-tight">Procedimento</h2>
           <div className="mt-4">
             {r.procedimento ? (
               <TestoSemplice testo={r.procedimento} />
@@ -118,9 +123,9 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
             )}
           </div>
           {r.note && (
-            <div className="mt-8 rounded-2xl bg-secondary p-5 text-sm">
+            <div className="mt-8 rounded-2xl bg-accent/60 p-5 text-sm">
               <h3 className="mb-1 flex items-center gap-2 font-medium">
-                <StickyNote className="size-4 text-primary" /> Note
+                <StickyNote className="size-4" /> Note
               </h3>
               <div className="text-muted-foreground">
                 <TestoSemplice testo={r.note} />
@@ -130,7 +135,7 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
         </section>
       </div>
 
-      <div className="mt-12 border-t pt-4">
+      <div className="mt-8 pt-2">
         <EliminaRicetta slug={r.slug} titolo={r.titolo} />
       </div>
     </main>

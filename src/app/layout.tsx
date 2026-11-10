@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 
 export const metadata: Metadata = {
   title: "Dispensa",
@@ -14,14 +13,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf6ef" },
-    { media: "(prefers-color-scheme: dark)", color: "#171311" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f4ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1411" },
   ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="it" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="it" className={jakarta.variable}>
       <body className="min-h-screen antialiased">
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <Toaster position="top-center" richColors />

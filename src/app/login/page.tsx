@@ -14,10 +14,10 @@ export default async function PaginaLogin({ searchParams }: PageProps<"/login">)
       <div className="relative w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <Logo grande />
-          <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight">Dispensa</h1>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight">Dispensa</h1>
           <p className="mt-1 text-muted-foreground">Il ricettario di casa</p>
         </div>
-        <div className="rounded-3xl border bg-card p-6 shadow-xl shadow-primary/5">
+        <div className="rounded-[28px] bg-card p-6 shadow-morbida">
           <FormAccesso next={typeof next === "string" ? next : "/"} />
         </div>
       </div>

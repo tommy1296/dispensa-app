@@ -77,12 +77,23 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
 
   return (
     <main>
-      <div className="mb-6">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Cosa cuciniamo oggi?</h1>
-        <p className="mt-1 text-muted-foreground">{tutte} ricette nella tua dispensa.</p>
-      </div>
+      <section className="relative overflow-hidden rounded-[32px] bg-primary px-5 pt-6 pb-5 text-primary-foreground sm:px-8 sm:pt-9 sm:pb-7 dark:bg-card dark:text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-lime/25 blur-3xl dark:bg-lime/10"
+        />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium opacity-70">Il tuo ricettario</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Cosa cuciniamo oggi?</h1>
+          </div>
+          <div className="flex items-baseline gap-2 rounded-2xl bg-white/10 px-4 py-2.5 dark:bg-secondary">
+            <span className="text-2xl font-bold text-lime tabular-nums">{tutte}</span>
+            <span className="text-sm opacity-80">ricette in dispensa</span>
+          </div>
+        </div>
 
-      <form action="/" className="flex gap-2">
+      <form action="/" className="relative mt-6 flex gap-2">
         {Object.entries(sp)
           .filter(([k]) => !["q", "pagina"].includes(k))
           .map(([k, v]) => (
@@ -94,16 +105,17 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
             name="q"
             defaultValue={testo}
             placeholder="Cerca per nome o ingrediente: zucca, ceci, tofu…"
-            className="h-11 rounded-full bg-card pl-10 shadow-sm"
+            className="h-12 rounded-full border-transparent bg-card pl-10 text-foreground shadow-sm dark:bg-secondary"
             type="search"
           />
         </div>
-        <Button size="lg" className="h-11 rounded-full px-5">
+        <Button size="lg" className="h-12 rounded-full bg-lime px-6 font-semibold text-[#142019] hover:bg-lime/85">
           Cerca
         </Button>
       </form>
+      </section>
 
-      <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+      <div className="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
         <Chip href={link(sp, { tipo: null })} attivo={!tipo}>
           <LayoutGrid className="size-4" /> Tutte <span className="opacity-60">{tutte}</span>
         </Chip>
@@ -114,14 +126,14 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
         ))}
       </div>
 
-      <details className="group mt-3 rounded-2xl border bg-card shadow-sm" open={filtriAttivi > 0}>
-        <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+      <details className="group mt-3 rounded-3xl bg-card shadow-morbida" open={filtriAttivi > 0}>
+        <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3.5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
           <SlidersHorizontal className="size-4 text-muted-foreground" />
           Filtri
           {filtriAttivi > 0 && <Badge className="h-5 min-w-5 rounded-full px-1.5">{filtriAttivi}</Badge>}
           <ChevronDown className="ml-auto size-4 text-muted-foreground transition group-open:rotate-180" />
         </summary>
-        <form action="/" className="grid gap-4 border-t px-4 pt-4 pb-4 sm:grid-cols-3">
+        <form action="/" className="grid gap-4 border-t border-dashed px-5 pt-4 pb-5 sm:grid-cols-3">
           {testo && <input type="hidden" name="q" value={testo} />}
           {tipo && <input type="hidden" name="tipo" value={tipo} />}
           <div className="grid gap-1.5">
@@ -159,7 +171,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
             ].map(([k, nome]) => (
               <Label
                 key={k}
-                className="cursor-pointer rounded-full border bg-background px-3 py-2 font-normal transition hover:bg-secondary has-[[data-state=checked]]:border-primary/40 has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground"
+                className="cursor-pointer rounded-full border border-transparent bg-secondary px-3.5 py-2 font-medium transition hover:bg-secondary/70 has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground"
               >
                 <Checkbox name={k} value="1" defaultChecked={si(k)} />
                 {nome}
@@ -175,19 +187,22 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
         </form>
       </details>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        {totale === 1 ? "1 ricetta" : `${totale} ricette`}
-        {testo && <> per «{testo}»</>}
-      </p>
+      <div className="mt-8 flex items-baseline justify-between gap-3">
+        <h2 className="text-xl font-bold tracking-tight">{tipo ? ETICHETTA_TIPO[tipo] : "Tutte le ricette"}</h2>
+        <p className="text-sm text-muted-foreground">
+          {totale === 1 ? "1 ricetta" : `${totale} ricette`}
+          {testo && <> per «{testo}»</>}
+        </p>
+      </div>
 
       {totale === 0 ? (
-        <div className="mt-4 flex flex-col items-center rounded-2xl border border-dashed px-6 py-16 text-center">
+        <div className="mt-4 flex flex-col items-center rounded-[28px] border-2 border-dashed px-6 py-16 text-center">
           <SearchX className="size-10 text-muted-foreground/60" />
           <p className="mt-3 font-medium">Nessuna ricetta trovata</p>
           <p className="mt-1 text-sm text-muted-foreground">Prova con un altro ingrediente o togli qualche filtro.</p>
         </div>
       ) : (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {ricette.map((r) => (
             <SchedaRicetta key={r.id} r={r} />
           ))}
@@ -232,8 +247,8 @@ function Chip({ href, attivo, children }: { href: string; attivo: boolean; child
     <Link
       href={href}
       className={cn(
-        "flex shrink-0 items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-sm font-medium whitespace-nowrap shadow-xs transition hover:border-primary/30 hover:bg-accent/50",
-        attivo && "border-primary bg-primary text-primary-foreground hover:border-primary hover:bg-primary/90",
+        "flex shrink-0 items-center gap-1.5 rounded-full bg-card px-4 py-2 text-sm font-semibold whitespace-nowrap shadow-morbida transition hover:bg-accent/60",
+        attivo && "bg-primary text-primary-foreground hover:bg-primary/90",
       )}
     >
       {children}

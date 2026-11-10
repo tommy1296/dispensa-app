@@ -36,10 +36,10 @@ function TreStati({ nome, etichetta, valore }: { nome: string; etichetta: string
 
 function Sezione({ titolo, descrizione, children }: { titolo?: string; descrizione?: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-5 rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
+    <section className="space-y-5 rounded-[28px] bg-card p-5 shadow-morbida sm:p-6">
       {titolo && (
         <div>
-          <h2 className="font-serif text-xl font-semibold">{titolo}</h2>
+          <h2 className="text-xl font-bold">{titolo}</h2>
           {descrizione && <p className="mt-0.5 text-sm text-muted-foreground">{descrizione}</p>}
         </div>
       )}
@@ -58,7 +58,7 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
 
       <Sezione>
         <Campo id="r-titolo" etichetta="Titolo *">
-          <Input id="r-titolo" name="titolo" required defaultValue={r?.titolo} className="h-11 font-serif text-lg md:text-lg" />
+          <Input id="r-titolo" name="titolo" required defaultValue={r?.titolo} className="h-11 text-lg md:text-lg" />
         </Campo>
         <div className="grid gap-4 sm:grid-cols-3">
           <Campo id="r-tipo" etichetta="Tipo">

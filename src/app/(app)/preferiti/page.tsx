@@ -23,7 +23,7 @@ export default async function Preferite() {
 
   return (
     <main>
-      <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Preferite</h1>
+      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Preferite</h1>
       <p className="mt-1 text-muted-foreground">
         {ricette.length === 0
           ? "Nessuna ricetta preferita, per ora."

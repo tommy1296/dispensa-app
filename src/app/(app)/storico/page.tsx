@@ -30,14 +30,14 @@ export default async function Storico() {
 
   return (
     <main className="mx-auto max-w-3xl">
-      <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Storico pasti</h1>
+      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Storico pasti</h1>
       <p className="mt-1 text-muted-foreground">Quello che hai mangiato, giorno per giorno.</p>
 
-      <div className="mt-6 flex items-center gap-4 rounded-2xl border bg-card p-4 shadow-sm">
+      <div className="mt-6 flex items-center gap-4 rounded-3xl bg-card p-4 shadow-morbida">
         <span
           className={cn(
             "flex size-11 shrink-0 items-center justify-center rounded-xl",
-            oltre ? "bg-accent text-primary" : "bg-verde-tenue text-verde",
+            oltre ? "bg-ambra-tenue text-ambra" : "bg-verde-tenue text-verde",
           )}
         >
           <Beef className="size-5" />
@@ -57,15 +57,15 @@ export default async function Storico() {
               ))}
             </div>
             <span className="text-sm text-muted-foreground tabular-nums">
-              <strong className={cn("text-base", oltre ? "text-primary" : "text-foreground")}>{carneRossa}</strong> / circa{" "}
+              <strong className={cn("text-base", oltre ? "text-ambra" : "text-foreground")}>{carneRossa}</strong> / circa{" "}
               {OBIETTIVO_CARNE_ROSSA}
             </span>
           </div>
         </div>
       </div>
 
-      <section className="mt-6 rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
-        <h2 className="mb-4 flex items-center gap-2 font-serif text-xl font-semibold">
+      <section className="mt-6 rounded-[28px] bg-card p-5 shadow-morbida sm:p-6">
+        <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
           <CalendarPlus className="size-5 text-primary" /> Registra un pasto
         </h2>
         <FormPasto titoli={(titoli ?? []).map((t) => t.titolo)} oggi={oggi} />
@@ -86,7 +86,7 @@ export default async function Storico() {
                   const { icona: Icona, classe } = STILE_PASTO[v.pasto];
                   const componenti = [v.proteina, v.carboidrato, v.verdura].filter(Boolean);
                   return (
-                    <li key={v.id} className="group flex items-center gap-3 rounded-2xl border bg-card p-3 shadow-xs">
+                    <li key={v.id} className="group flex items-center gap-3 rounded-3xl bg-card p-3 shadow-morbida">
                       <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", classe)} title={v.pasto}>
                         <Icona className="size-[18px]" />
                       </span>

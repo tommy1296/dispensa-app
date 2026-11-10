@@ -9,7 +9,7 @@ export default async function ModificaRicetta({ params }: PageProps<"/ricette/[s
   if (!ricetta) notFound();
   return (
     <main className="mx-auto max-w-3xl">
-      <h1 className="mb-6 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Modifica ricetta</h1>
+      <h1 className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl">Modifica ricetta</h1>
       <FormRicetta ricetta={ricetta} />
     </main>
   );
