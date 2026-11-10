@@ -1,12 +1,13 @@
-import { LogOut, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
-import { esci } from "@/app/login/actions";
 import { Logo } from "@/components/logo";
+import { MenuUtente } from "@/components/menu-utente";
 import { NavigazioneDesktop, NavigazioneMobile } from "@/components/navigazione";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { utenteCorrente } from "@/lib/supabase/server";
 
-export default function LayoutApp({ children }: { children: React.ReactNode }) {
+export default async function LayoutApp({ children }: { children: React.ReactNode }) {
+  const utente = await utenteCorrente();
   return (
     <>
       <header className="sticky top-0 z-20 border-b bg-[#fbf8f2]/90 backdrop-blur-lg">
@@ -20,16 +21,9 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
               <Plus /> Nuova ricetta
             </Link>
           </Button>
-          <form action={esci}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-xl text-muted-foreground" aria-label="Esci">
-                  <LogOut />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Esci</TooltipContent>
-            </Tooltip>
-          </form>
+          <div className="ml-2">
+            <MenuUtente email={utente?.email ?? ""} />
+          </div>
         </nav>
       </header>
       <div className="mx-auto max-w-6xl px-4 pt-8 pb-28 md:pb-16">{children}</div>

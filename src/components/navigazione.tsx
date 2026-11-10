@@ -9,14 +9,16 @@ const VOCI: { href: string; nome: string; icona: LucideIcon }[] = [
   { href: "/", nome: "Ricette", icona: BookOpen },
   { href: "/preferiti", nome: "Preferite", icona: Heart },
   { href: "/storico", nome: "Storico", icona: CalendarDays },
-  { href: "/impostazioni", nome: "Impostazioni", icona: Settings },
 ];
+
+/** Sul telefono la barra in basso ha cinque posti: Impostazioni resta anche qui. */
+const IMPOSTAZIONI = { href: "/impostazioni", nome: "Impostazioni", icona: Settings };
 
 function attiva(pathname: string, href: string) {
   return href === "/" ? pathname === "/" || (pathname.startsWith("/ricette/") && pathname !== "/ricette/nuova") : pathname.startsWith(href);
 }
 
-/** Link della barra in alto, visibili da tablet in su. */
+/** Link della barra in alto, visibili da tablet in su. Impostazioni sta nel menu account. */
 export function NavigazioneDesktop() {
   const pathname = usePathname();
   return (
@@ -32,8 +34,7 @@ export function NavigazioneDesktop() {
           )}
         >
           <Icona className="size-4" />
-          {/* Impostazioni solo icona sui tablet, per non affollare la barra. */}
-          <span className={cn(href === "/impostazioni" && "sr-only lg:not-sr-only")}>{nome}</span>
+          {nome}
         </Link>
       ))}
     </div>
@@ -43,7 +44,7 @@ export function NavigazioneDesktop() {
 /** Barra in basso sul telefono, con il pulsante centrale per una nuova ricetta. */
 export function NavigazioneMobile() {
   const pathname = usePathname();
-  const voci = [VOCI[0], VOCI[1], null, VOCI[2], VOCI[3]];
+  const voci = [VOCI[0], VOCI[1], null, VOCI[2], IMPOSTAZIONI];
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-[#fbf8f2]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden">
       <div className="mx-auto grid max-w-md grid-cols-5 items-center px-1">
