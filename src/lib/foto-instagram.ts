@@ -93,7 +93,7 @@ export async function salvaFotoInstagram(db: SupabaseClient, slug: string, fonte
 
     const estensione = tipo.includes("png") ? "png" : tipo.includes("webp") ? "webp" : "jpg";
     const percorso = `instagram/${slug}-${Date.now()}.${estensione}`;
-    const { error } = await db.storage.from("foto-ricette").upload(percorso, dati, { contentType: tipo, upsert: true });
+    const { error } = await db.storage.from("foto-ricette").upload(percorso, dati, { contentType: tipo, upsert: false });
     if (error) return { ok: false, motivo: `Salvataggio non riuscito: ${error.message}` };
     return { ok: true, url: db.storage.from("foto-ricette").getPublicUrl(percorso).data.publicUrl };
   } catch (e) {

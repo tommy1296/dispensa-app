@@ -34,7 +34,7 @@ async function caricaFoto(db: Awaited<ReturnType<typeof supabaseServer>>, foto: 
   const percorso = `${slug}-${Date.now()}.${estensione}`;
   const { error } = await db.storage.from("foto-ricette").upload(percorso, foto, {
     contentType: foto.type || "image/jpeg",
-    upsert: true,
+    upsert: false,
   });
   if (error) throw new Error(`Caricamento foto non riuscito: ${error.message}`);
   return db.storage.from("foto-ricette").getPublicUrl(percorso).data.publicUrl;
