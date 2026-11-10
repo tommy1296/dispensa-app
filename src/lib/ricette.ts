@@ -68,6 +68,8 @@ export interface Ricetta {
   fonte_post: number | null;
   immagine_url: string | null;
   preferita: boolean;
+  /** Salvata al volo (es. dal bot Telegram) e ancora da completare. */
+  bozza: boolean;
   creata_il: string;
   modificata_il: string;
 }
@@ -91,10 +93,10 @@ export interface VoceStorico {
 }
 
 const COLONNE_RICETTA =
-  "id, slug, titolo, tipo, proteina, ha_proteina, ha_carboidrato, ha_verdura, pasto_completo, adatta_asporto, tempo, vegana, vegetariana, senza_glutine, scheda_parziale, etichette_stimate, ingredienti, procedimento, note, fonte_tipo, fonte_url, fonte_post, immagine_url, preferita, creata_il, modificata_il";
+  "id, slug, titolo, tipo, proteina, ha_proteina, ha_carboidrato, ha_verdura, pasto_completo, adatta_asporto, tempo, vegana, vegetariana, senza_glutine, scheda_parziale, etichette_stimate, ingredienti, procedimento, note, fonte_tipo, fonte_url, fonte_post, immagine_url, preferita, bozza, creata_il, modificata_il";
 
 const COLONNE_ELENCO =
-  "id, slug, titolo, tipo, proteina, ha_proteina, ha_carboidrato, ha_verdura, pasto_completo, adatta_asporto, tempo, vegana, vegetariana, senza_glutine, scheda_parziale, immagine_url, preferita, fonte_url";
+  "id, slug, titolo, tipo, proteina, ha_proteina, ha_carboidrato, ha_verdura, pasto_completo, adatta_asporto, tempo, vegana, vegetariana, senza_glutine, scheda_parziale, immagine_url, preferita, bozza, fonte_url";
 
 export type RicettaInElenco = Pick<
   Ricetta,
@@ -115,6 +117,7 @@ export type RicettaInElenco = Pick<
   | "scheda_parziale"
   | "immagine_url"
   | "preferita"
+  | "bozza"
   | "fonte_url"
 >;
 
@@ -158,6 +161,8 @@ export interface FiltriRicerca {
   vegetariana?: boolean;
   senzaGlutine?: boolean;
   preferita?: boolean;
+  /** true = solo bozze; false o assente = solo ricette complete (le bozze restano fuori). */
+  bozze?: boolean;
   ingredienti?: string[];
   escludiIngredienti?: string[];
   escludiSlug?: string[];
@@ -206,6 +211,7 @@ export async function cercaRicette(db: SupabaseClient, f: FiltriRicerca) {
     if (f.vegetariana) q = q.eq("vegetariana", true);
     if (f.senzaGlutine) q = q.eq("senza_glutine", "si");
     if (f.preferita) q = q.eq("preferita", true);
+    q = q.eq("bozza", f.bozze === true);
     for (const ing of f.ingredienti ?? []) {
       const t = perIlike(ing);
       if (t) q = q.ilike("ingredienti_testo", `%${t}%`);
@@ -292,11 +298,35 @@ export async function contaPerTipo(db: SupabaseClient) {
   const conteggi: Partial<Record<Tipo, number>> = {};
   await Promise.all(
     TIPI.map(async (tipo) => {
-      const { count } = await db.from("ricette").select("id", { count: "exact", head: true }).eq("tipo", tipo);
+      const { count } = await db
+        .from("ricette")
+        .select("id", { count: "exact", head: true })
+        .eq("tipo", tipo)
+        .eq("bozza", false);
       conteggi[tipo] = count ?? 0;
     }),
   );
   return conteggi;
+}
+
+export async function contaBozze(db: SupabaseClient) {
+  const { count, error } = await db.from("ricette").select("id", { count: "exact", head: true }).eq("bozza", true);
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
+/** Ricetta (bozza o no) che ha come fonte il post Instagram con questo codice, oppure null. */
+export async function ricettaDaPostInstagram(db: SupabaseClient, codice: string) {
+  // I codici hanno solo lettere, cifre, "_" e "-" ("_" in LIKE vale un carattere qualsiasi: va bene).
+  if (!/^[A-Za-z0-9_-]+$/.test(codice)) return null;
+  const { data, error } = await db
+    .from("ricette")
+    .select("slug, titolo, bozza")
+    .like("fonte_url", `%instagram.com/%${codice}%`)
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data as { slug: string; titolo: string; bozza: boolean } | null;
 }
 
 // ---------------------------------------------------------------------------

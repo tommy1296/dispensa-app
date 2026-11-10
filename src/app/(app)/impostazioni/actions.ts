@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { BUCKET, percorsoNelBucket, salvaFotoOttimizzata } from "@/lib/foto";
 import { aggiornaRicetta, fotoUsate, ricetteConFotoDaOttimizzare } from "@/lib/ricette";
-import { supabaseServer } from "@/lib/supabase/server";
+import { headers } from "next/headers";
+import { origine } from "@/lib/oauth";
+import { supabaseServer, utenteCorrente } from "@/lib/supabase/server";
+import { PERCORSO_WEBHOOK, configTelegram, impostaWebhook } from "@/lib/telegram";
 
 const MAX_BYTE = 25 * 1024 * 1024;
 const ATTESA_MS = 15_000;
@@ -126,4 +129,25 @@ export async function eliminaFotoInutilizzate(): Promise<EsitoPulizia> {
     }
     return { file: eliminati, byte };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Bot Telegram
+// ---------------------------------------------------------------------------
+
+export type EsitoTelegram = { ok: boolean; messaggio: string };
+
+/** Dice a Telegram di mandare i messaggi del bot al webhook di questa app. */
+export async function collegaBotTelegram(): Promise<EsitoTelegram> {
+  if (!(await utenteCorrente())) return { ok: false, messaggio: "Accesso richiesto." };
+  const { token, segreto } = configTelegram();
+  if (!token || !segreto) return { ok: false, messaggio: "Mancano TELEGRAM_BOT_TOKEN o TELEGRAM_WEBHOOK_SECRET su Vercel." };
+  try {
+    const url = `${origine(await headers())}${PERCORSO_WEBHOOK}`;
+    await impostaWebhook(token, url, segreto);
+    revalidatePath("/impostazioni");
+    return { ok: true, messaggio: "Bot collegato. Mandagli un link Instagram per provarlo." };
+  } catch (e) {
+    return { ok: false, messaggio: `Telegram ha rifiutato: ${(e as Error).message}` };
+  }
 }

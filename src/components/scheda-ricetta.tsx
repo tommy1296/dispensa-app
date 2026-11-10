@@ -1,4 +1,4 @@
-import { Check, Heart } from "lucide-react";
+import { Check, FilePen, Heart } from "lucide-react";
 import Link from "next/link";
 import { ETICHETTA_TIPO, type RicettaInElenco } from "@/lib/ricette";
 import { Copertina } from "./copertina";
@@ -20,7 +20,12 @@ export function SchedaRicetta({ r }: { r: RicettaInElenco }) {
         <span className="absolute top-2.5 left-2.5 rounded-md bg-white/95 px-2 py-1 text-[10px] font-bold tracking-wider text-foreground uppercase shadow-sm">
           {ETICHETTA_TIPO[r.tipo]}
         </span>
-        {r.preferita && (
+        {r.bozza && (
+          <span className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-md bg-ambra px-1.5 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm">
+            <FilePen className="size-3" /> Bozza
+          </span>
+        )}
+        {r.preferita && !r.bozza && (
           <span
             className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-md bg-terracotta px-1.5 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm"
             title="Preferita"

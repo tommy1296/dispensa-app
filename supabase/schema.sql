@@ -71,6 +71,11 @@ create index if not exists ricette_ingredienti_trgm_idx on public.ricette using 
 create index if not exists ricette_titolo_trgm_idx on public.ricette using gin (titolo extensions.gin_trgm_ops);
 create index if not exists ricette_tipo_idx on public.ricette (tipo);
 
+-- Bozze: ricette salvate al volo (per esempio dal bot Telegram) e ancora da
+-- completare. Restano fuori dalla ricerca normale finché non si tolgono da bozza.
+alter table public.ricette add column if not exists bozza boolean not null default false;
+create index if not exists ricette_bozza_idx on public.ricette (bozza) where bozza;
+
 -- ---------------------------------------------------------------------------
 -- Storico dei pasti scelti
 -- ---------------------------------------------------------------------------

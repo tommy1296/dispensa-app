@@ -1,8 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Percorsi raggiungibili senza login: il server MCP ha il suo controllo con i token.
-const PUBBLICI = ["/login", "/mcp", "/well-known", "/.well-known", "/oauth/token", "/oauth/register"];
+// Percorsi raggiungibili senza login: il server MCP ha il suo controllo con i token,
+// il webhook Telegram verifica il segreto del bot.
+const PUBBLICI = ["/login", "/mcp", "/telegram", "/well-known", "/.well-known", "/oauth/token", "/oauth/register"];
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

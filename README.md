@@ -16,6 +16,7 @@ MCP che permette a Claude di cercarle, aggiungerle e registrare i pasti scelti.
 | `src/lib/ricette.ts` | Query condivise da web app e server MCP |
 | `src/lib/oauth.ts` | Server OAuth minimo per il connettore Claude (token JWT firmati) |
 | `src/app/mcp/route.ts` | Strumenti MCP |
+| `src/app/telegram/route.ts` | Webhook del bot Telegram (link Instagram → bozza) |
 | `src/app/(app)/` | Pagine della web app |
 
 ## Strumenti MCP
@@ -39,6 +40,19 @@ MCP che permette a Claude di cercarle, aggiungerle e registrare i pasti scelti.
 3. **Vercel**: importa il repository e imposta le variabili di `.env.example`.
 4. **Claude**: su claude.ai, *Impostazioni > Connettori > Aggiungi connettore personalizzato*,
    URL `https://<tuo-dominio>.vercel.app/mcp`.
+
+## Bot Telegram (facoltativo)
+
+Mandi al bot il link di un post o reel Instagram e lui crea una **bozza** con
+didascalia e copertina. Le bozze stanno nella pagina *Bozze* e restano fuori dalla
+ricerca (e dalle proposte di Claude) finché non le completi.
+
+1. Su Telegram scrivi a **@BotFather** → `/newbot` → scegli nome e username. Copia il token.
+2. Su Vercel (*Settings > Environment Variables*) aggiungi `TELEGRAM_BOT_TOKEN` e
+   `TELEGRAM_WEBHOOK_SECRET` (stringa casuale), poi rifai il deploy.
+3. Nell'app, *Impostazioni > Bot Telegram > Collega il bot*.
+4. Scrivi al bot: ti risponde con il tuo id. Mettilo in `TELEGRAM_USER_ID` su Vercel e
+   rifai il deploy. Da lì il bot risponde solo a te.
 
 ## Sviluppo in locale
 
