@@ -123,3 +123,8 @@ create policy "foto: modifica" on storage.objects
 drop policy if exists "foto: eliminazione" on storage.objects;
 create policy "foto: eliminazione" on storage.objects
   for delete to authenticated using (bucket_id = 'foto-ricette');
+
+-- Serve per elencare i file (pulizia delle foto inutilizzate) e per eliminarli.
+drop policy if exists "foto: elenco" on storage.objects;
+create policy "foto: elenco" on storage.objects
+  for select to authenticated using (bucket_id = 'foto-ricette');
