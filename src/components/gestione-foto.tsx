@@ -10,7 +10,7 @@ import {
   eliminaFotoInutilizzate,
   ottimizzaFotoLotto,
   type EsitoPulizia,
-} from "@/app/(app)/foto/actions";
+} from "@/app/(app)/impostazioni/actions";
 import { Button } from "@/components/ui/button";
 
 const mb = (byte: number) => `${(byte / 1024 / 1024).toLocaleString("it-IT", { maximumFractionDigits: 1 })} MB`;
@@ -20,7 +20,7 @@ function Riquadro({ icona, titolo, children }: { icona: React.ReactNode; titolo:
     <section className="rounded-[22px] border bg-card p-5 shadow-morbida sm:p-6">
       <div className="flex items-center gap-3">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-crema text-terracotta">{icona}</span>
-        <h2 className="font-serif text-xl font-semibold">{titolo}</h2>
+        <h3 className="font-serif text-xl font-semibold">{titolo}</h3>
       </div>
       <div className="mt-3 space-y-3 text-sm">{children}</div>
     </section>

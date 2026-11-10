@@ -110,7 +110,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
       {senzaFoto.totale > 0 && <RecuperoFotoMancanti totale={senzaFoto.totale} />}
       {daOttimizzare.totale > 0 && (
         <Link
-          href="/foto"
+          href="/impostazioni"
           className="mt-4 flex items-center gap-3 rounded-2xl border border-crema-bordo bg-crema p-4 text-sm transition hover:bg-crema/70"
         >
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-terracotta shadow-sm">
