@@ -27,23 +27,28 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
 
   return (
     <main className="mx-auto max-w-5xl">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 rounded-full text-muted-foreground">
+      <Button asChild variant="ghost" size="sm" className="-ml-2 rounded-xl text-muted-foreground">
         <Link href="/">
           <ArrowLeft /> Tutte le ricette
         </Link>
       </Button>
 
-      <div className="mt-3 grid gap-5 rounded-[32px] bg-card p-2 shadow-morbida sm:p-3 md:grid-cols-[5fr_6fr] md:gap-8">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[26px] md:aspect-square">
+      <div className="mt-3 grid overflow-hidden rounded-[22px] border bg-card shadow-morbida md:grid-cols-[5fr_6fr]">
+        <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[26rem]">
           <Copertina tipo={r.tipo} immagine={r.immagine_url} titolo={r.titolo} grande />
-          <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-card/90 px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur">
-            <IconaTipo tipo={r.tipo} className="size-4" /> {ETICHETTA_TIPO[r.tipo]}
+          <span className="absolute top-4 left-4 flex items-center gap-1.5 rounded-md bg-white/95 px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase shadow-sm">
+            <IconaTipo tipo={r.tipo} className="size-3.5" /> {ETICHETTA_TIPO[r.tipo]}
           </span>
+          {r.preferita && (
+            <span className="absolute top-4 right-4 flex items-center gap-1 rounded-md bg-terracotta px-2 py-1 text-[11px] font-bold tracking-wider text-white uppercase shadow-sm">
+              <Heart className="size-3 fill-current" /> Preferita
+            </span>
+          )}
         </div>
 
-        <div className="flex flex-col justify-center px-3 pb-4 md:py-4 md:pr-6 md:pl-0">
+        <div className="flex flex-col justify-center p-5 sm:p-7">
           {r.tipo === "pasto" && r.pasto_completo && <PastoCompleto className="mb-3" />}
-          <h1 className="text-3xl leading-tight font-bold tracking-tight text-balance sm:text-4xl">{r.titolo}</h1>
+          <h1 className="font-serif text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">{r.titolo}</h1>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             <Etichette r={r} estese />
@@ -57,7 +62,7 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
           )}
 
           {(r.scheda_parziale || r.etichette_stimate) && (
-            <div className="mt-5 flex gap-3 rounded-2xl bg-ambra-tenue p-4 text-sm">
+            <div className="mt-5 flex gap-3 rounded-xl border border-crema-bordo bg-crema p-4 text-sm">
               <Info className="mt-0.5 size-4 shrink-0 text-ambra" />
               <div className="space-y-1">
                 {r.scheda_parziale && <p>Scheda incompleta: per dosi o passaggi mancanti guarda la fonte.</p>}
@@ -70,7 +75,7 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
 
           <div className="mt-6 flex flex-wrap gap-2">
             {r.fonte_url && (
-              <Button asChild size="lg" className="rounded-full">
+              <Button asChild size="lg" className="rounded-xl">
                 <a href={r.fonte_url} target="_blank" rel="noopener noreferrer">
                   Apri la fonte <ExternalLink />
                 </a>
@@ -81,13 +86,13 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
               <Button
                 variant="outline"
                 size="lg"
-                className={cn("rounded-full", r.preferita && "border-transparent bg-accent text-accent-foreground hover:bg-accent/80")}
+                className={cn("rounded-xl", r.preferita && "border-terracotta/30 bg-terracotta-tenue text-terracotta hover:bg-terracotta-tenue/80 hover:text-terracotta")}
                 title={r.preferita ? "Togli dalle preferite" : "Aggiungi alle preferite"}
               >
                 <Heart className={cn(r.preferita && "fill-current")} /> {r.preferita ? "Preferita" : "Aggiungi alle preferite"}
               </Button>
             </form>
-            <Button asChild variant="outline" size="lg" className="rounded-full">
+            <Button asChild variant="outline" size="lg" className="rounded-xl">
               <Link href={`/ricette/${r.slug}/modifica`}>
                 <Pencil /> Modifica
               </Link>
@@ -97,8 +102,8 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
       </div>
 
       <div className="mt-5 grid gap-5 md:grid-cols-[5fr_6fr]">
-        <section className="h-fit rounded-[28px] bg-card p-5 shadow-morbida sm:p-6 md:sticky md:top-24">
-          <h2 className="flex items-baseline justify-between text-2xl font-bold tracking-tight">
+        <section className="h-fit rounded-[22px] border bg-card p-5 shadow-morbida sm:p-6 md:sticky md:top-24">
+          <h2 className="flex items-baseline justify-between font-serif text-2xl font-semibold tracking-tight">
             Ingredienti
             {r.ingredienti.length > 0 && (
               <span className="rounded-full bg-secondary px-2.5 py-0.5 text-sm font-semibold text-muted-foreground">{r.ingredienti.length}</span>
@@ -113,8 +118,8 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
           </div>
         </section>
 
-        <section className="rounded-[28px] bg-card p-5 shadow-morbida sm:p-6">
-          <h2 className="text-2xl font-bold tracking-tight">Procedimento</h2>
+        <section className="rounded-[22px] border bg-card p-5 shadow-morbida sm:p-6">
+          <h2 className="font-serif text-2xl font-semibold tracking-tight">Procedimento</h2>
           <div className="mt-4">
             {r.procedimento ? (
               <TestoSemplice testo={r.procedimento} />
@@ -123,11 +128,11 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
             )}
           </div>
           {r.note && (
-            <div className="mt-8 rounded-2xl bg-accent/60 p-5 text-sm">
-              <h3 className="mb-1 flex items-center gap-2 font-medium">
-                <StickyNote className="size-4" /> Note
+            <div className="mt-8 rounded-xl border border-crema-bordo bg-crema p-5">
+              <h3 className="mb-1.5 flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] text-ambra uppercase">
+                <StickyNote className="size-3.5" /> Note
               </h3>
-              <div className="text-muted-foreground">
+              <div className="font-serif italic">
                 <TestoSemplice testo={r.note} />
               </div>
             </div>

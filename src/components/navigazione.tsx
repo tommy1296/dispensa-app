@@ -19,14 +19,14 @@ function attiva(pathname: string, href: string) {
 export function NavigazioneDesktop() {
   const pathname = usePathname();
   return (
-    <div className="hidden items-center gap-1 rounded-full bg-secondary p-1 md:flex">
+    <div className="hidden items-center gap-1 md:flex">
       {VOCI.map(({ href, nome, icona: Icona }) => (
         <Link
           key={href}
           href={href}
           className={cn(
-            "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground",
-            attiva(pathname, href) && "bg-primary text-primary-foreground shadow-sm hover:text-primary-foreground",
+            "flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground",
+            attiva(pathname, href) && "bg-inchiostro text-white hover:bg-inchiostro hover:text-white",
           )}
         >
           <Icona className="size-4" /> {nome}
@@ -41,7 +41,7 @@ export function NavigazioneMobile() {
   const pathname = usePathname();
   const voci = [VOCI[0], VOCI[1], null, VOCI[2]];
   return (
-    <nav className="fixed inset-x-3 bottom-3 z-30 mb-[env(safe-area-inset-bottom)] rounded-[26px] bg-card/95 shadow-morbida ring-1 ring-border/60 backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-[#fbf8f2]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden">
       <div className="mx-auto grid max-w-md grid-cols-4 items-center px-2">
         {voci.map((v) =>
           v ? (
@@ -50,13 +50,13 @@ export function NavigazioneMobile() {
               href={v.href}
               className={cn(
                 "flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-muted-foreground transition",
-                attiva(pathname, v.href) && "text-foreground",
+                attiva(pathname, v.href) && "text-terracotta",
               )}
             >
               <span
                 className={cn(
                   "flex h-7 w-12 items-center justify-center rounded-full transition",
-                  attiva(pathname, v.href) && "bg-accent text-accent-foreground",
+                  attiva(pathname, v.href) && "bg-terracotta-tenue",
                 )}
               >
                 <v.icona className={cn("size-5", attiva(pathname, v.href) && v.href === "/preferiti" && "fill-current")} />
@@ -67,7 +67,7 @@ export function NavigazioneMobile() {
             <Link
               key="nuova"
               href="/ricette/nuova"
-              className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition active:scale-95"
+              className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/25 transition active:scale-95"
               aria-label="Nuova ricetta"
             >
               <Plus className="size-6" />

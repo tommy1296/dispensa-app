@@ -8,9 +8,9 @@ export const metadata = { title: "Collega Claude · Dispensa" };
 function Errore({ testo }: { testo: string }) {
   return (
     <main className="mx-auto max-w-md px-4 py-16">
-      <div className="rounded-[28px] bg-card p-6 shadow-morbida">
+      <div className="rounded-[22px] border bg-card p-6 shadow-morbida">
         <TriangleAlert className="size-8 text-destructive" />
-        <h1 className="mt-3 text-2xl font-bold">Collegamento non valido</h1>
+        <h1 className="mt-3 font-serif text-2xl font-semibold">Collegamento non valido</h1>
         <p className="mt-2 text-muted-foreground">{testo}</p>
       </div>
     </main>
@@ -32,11 +32,11 @@ export default async function Autorizza({ searchParams }: PageProps<"/oauth/auth
   const host = new URL(p("redirect_uri")).host;
   return (
     <main className="mx-auto max-w-md px-4 py-16">
-      <div className="rounded-[28px] bg-card p-6 shadow-morbida">
+      <div className="rounded-[22px] border bg-card p-6 shadow-morbida">
         <span className="flex size-12 items-center justify-center rounded-2xl bg-accent text-primary">
           <KeyRound className="size-6" />
         </span>
-        <h1 className="mt-3 text-2xl font-bold">Collegare {client.nome}?</h1>
+        <h1 className="mt-3 font-serif text-2xl font-semibold">Collegare {client.nome}?</h1>
         <p className="mt-2 text-muted-foreground">
           {client.nome} potrà cercare, leggere, aggiungere e modificare le ricette e registrare i pasti nello storico.
         </p>
@@ -47,10 +47,10 @@ export default async function Autorizza({ searchParams }: PageProps<"/oauth/auth
           {["client_id", "redirect_uri", "state", "code_challenge"].map((k) => (
             <input key={k} type="hidden" name={k} value={p(k)} />
           ))}
-          <Button name="decisione" value="nega" variant="outline" size="lg" className="flex-1 rounded-full">
+          <Button name="decisione" value="nega" variant="outline" size="lg" className="flex-1 rounded-xl">
             Annulla
           </Button>
-          <Button name="decisione" value="consenti" size="lg" className="flex-1 rounded-full">
+          <Button name="decisione" value="consenti" size="lg" className="flex-1 rounded-xl">
             Consenti
           </Button>
         </form>

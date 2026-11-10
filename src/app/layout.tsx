@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Literata, Manrope } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
+const literata = Literata({ subsets: ["latin"], variable: "--font-literata", style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
   title: "Dispensa",
@@ -12,15 +13,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f4ef" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f1411" },
-  ],
+  themeColor: "#f6f2ea",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="it" className={jakarta.variable}>
+    <html lang="it" className={`${manrope.variable} ${literata.variable}`}>
       <body className="min-h-screen antialiased">
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <Toaster position="top-center" richColors />

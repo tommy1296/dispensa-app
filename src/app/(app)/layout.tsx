@@ -9,16 +9,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 export default function LayoutApp({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <header className="sticky top-0 z-20 px-3 pt-3 sm:px-4">
-        <nav className="mx-auto flex h-16 max-w-6xl items-center gap-2 rounded-[22px] bg-card/90 pr-2.5 pl-3 shadow-morbida backdrop-blur-xl sm:pl-4">
-          <Link href="/" className="mr-auto flex items-center gap-2.5 text-lg font-bold tracking-tight">
+      <header className="sticky top-0 z-20 border-b bg-[#fbf8f2]/90 backdrop-blur-lg">
+        <nav className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4">
+          <Link href="/" className="mr-auto flex items-center gap-2.5 font-serif text-xl font-semibold tracking-tight">
             <Logo /> Dispensa
           </Link>
           <NavigazioneDesktop />
-          <Button
-            asChild
-            className="ml-2 hidden h-10 rounded-full bg-lime px-4 font-semibold text-[#142019] hover:bg-lime/85 md:inline-flex"
-          >
+          <Button asChild className="ml-3 hidden h-9 rounded-xl px-4 font-semibold shadow-sm md:inline-flex">
             <Link href="/ricette/nuova">
               <Plus /> Nuova ricetta
             </Link>
@@ -26,12 +23,7 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
           <form action={esci}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-10 rounded-full bg-secondary text-muted-foreground hover:bg-secondary/70"
-                  aria-label="Esci"
-                >
+                <Button variant="outline" size="icon" className="rounded-xl text-muted-foreground" aria-label="Esci">
                   <LogOut />
                 </Button>
               </TooltipTrigger>

@@ -8,9 +8,9 @@ export default function NonTrovato() {
       <span className="flex size-16 items-center justify-center rounded-full bg-accent text-primary">
         <SearchX className="size-7" />
       </span>
-      <h1 className="mt-5 text-3xl font-bold tracking-tight">Qui non c&apos;è niente</h1>
+      <h1 className="mt-5 font-serif text-3xl font-semibold tracking-tight">Qui non c&apos;è niente</h1>
       <p className="mt-2 text-muted-foreground">La pagina che cerchi non esiste o la ricetta è stata eliminata.</p>
-      <Button asChild className="mt-6 rounded-full">
+      <Button asChild className="mt-6 rounded-xl">
         <Link href="/">
           <ArrowLeft /> Torna alle ricette
         </Link>

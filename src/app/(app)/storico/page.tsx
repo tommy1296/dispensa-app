@@ -30,10 +30,10 @@ export default async function Storico() {
 
   return (
     <main className="mx-auto max-w-3xl">
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Storico pasti</h1>
+      <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Storico pasti</h1>
       <p className="mt-1 text-muted-foreground">Quello che hai mangiato, giorno per giorno.</p>
 
-      <div className="mt-6 flex items-center gap-4 rounded-3xl bg-card p-4 shadow-morbida">
+      <div className="mt-6 flex items-center gap-4 rounded-2xl border bg-card p-4 shadow-morbida">
         <span
           className={cn(
             "flex size-11 shrink-0 items-center justify-center rounded-xl",
@@ -64,8 +64,8 @@ export default async function Storico() {
         </div>
       </div>
 
-      <section className="mt-6 rounded-[28px] bg-card p-5 shadow-morbida sm:p-6">
-        <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
+      <section className="mt-6 rounded-[22px] border bg-card p-5 shadow-morbida sm:p-6">
+        <h2 className="mb-4 flex items-center gap-2 font-serif text-xl font-semibold">
           <CalendarPlus className="size-5 text-primary" /> Registra un pasto
         </h2>
         <FormPasto titoli={(titoli ?? []).map((t) => t.titolo)} oggi={oggi} />
@@ -75,7 +75,7 @@ export default async function Storico() {
         {voci.length === 0 && <p className="text-center text-muted-foreground">Ancora nessun pasto registrato.</p>}
         {[...perGiorno.entries()].map(([data, lista]) => (
           <section key={data}>
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground capitalize">
+            <h2 className="mb-3 flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] text-muted-foreground uppercase">
               {data === oggi ? "Oggi" : formatoData.format(new Date(`${data}T00:00:00Z`))}
               <span className="h-px flex-1 bg-border" />
             </h2>
@@ -86,7 +86,7 @@ export default async function Storico() {
                   const { icona: Icona, classe } = STILE_PASTO[v.pasto];
                   const componenti = [v.proteina, v.carboidrato, v.verdura].filter(Boolean);
                   return (
-                    <li key={v.id} className="group flex items-center gap-3 rounded-3xl bg-card p-3 shadow-morbida">
+                    <li key={v.id} className="group flex items-center gap-3 rounded-2xl border bg-card p-3 shadow-morbida">
                       <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", classe)} title={v.pasto}>
                         <Icona className="size-[18px]" />
                       </span>
@@ -108,7 +108,7 @@ export default async function Storico() {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          className="rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          className="rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                           title="Elimina"
                           aria-label="Elimina"
                         >

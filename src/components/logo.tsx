@@ -1,16 +1,16 @@
-import { Salad } from "lucide-react";
+import { CookingPot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Logo({ grande = false }: { grande?: boolean }) {
   return (
     <span
       className={cn(
-        "flex items-center justify-center bg-primary text-lime dark:bg-lime dark:text-[#142019]",
-        grande ? "size-16 rounded-[22px]" : "size-9 rounded-xl",
+        "flex items-center justify-center rounded-full bg-inchiostro text-[#f6f2ea] ring-4 ring-inchiostro/10",
+        grande ? "size-16" : "size-9",
       )}
       aria-hidden
     >
-      <Salad className={grande ? "size-8" : "size-5"} strokeWidth={2.25} />
+      <CookingPot className={grande ? "size-7" : "size-[18px]"} />
     </span>
   );
 }
