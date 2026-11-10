@@ -2,7 +2,7 @@
 
 import { ImageUp, Loader2, Save } from "lucide-react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { salvaRicetta } from "@/app/(app)/ricette/actions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,6 +34,29 @@ function TreStati({ nome, etichetta, valore }: { nome: string; etichetta: string
   );
 }
 
+/**
+ * Rimpicciolisce la foto nel browser prima dell'invio (lato lungo 2000 px, JPEG),
+ * così resta sotto il limite delle richieste anche con le foto del telefono.
+ * Il ritaglio finale in 4:3 lo fa il server. Se il browser non sa leggere la
+ * foto (per esempio HEIC fuori da Safari), la lascia com'è.
+ */
+async function rimpicciolisci(file: File) {
+  const LATO = 2000;
+  if (!file.type.startsWith("image/")) return file;
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" }).catch(() => null);
+  if (!bitmap) return file;
+  const scala = Math.min(1, LATO / Math.max(bitmap.width, bitmap.height));
+  if (scala === 1 && file.size < 1.5 * 1024 * 1024) return file;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scala);
+  canvas.height = Math.round(bitmap.height * scala);
+  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/jpeg", 0.88));
+  if (!blob || blob.size >= file.size) return file;
+  return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+}
+
 function Sezione({ titolo, descrizione, children }: { titolo?: string; descrizione?: string; children: React.ReactNode }) {
   return (
     <section className="space-y-5 rounded-[22px] border bg-card p-5 shadow-morbida sm:p-6">
@@ -50,6 +73,24 @@ function Sezione({ titolo, descrizione, children }: { titolo?: string; descrizio
 
 export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
   const [stato, azione, inCorso] = useActionState(salvaRicetta, undefined);
+  const [preparoFoto, setPreparoFoto] = useState(false);
+
+  async function sceltaFoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+    setPreparoFoto(true);
+    try {
+      const piccola = await rimpicciolisci(file);
+      if (piccola !== file) {
+        const lista = new DataTransfer();
+        lista.items.add(piccola);
+        input.files = lista.files;
+      }
+    } finally {
+      setPreparoFoto(false);
+    }
+  }
   const r = ricetta;
 
   return (
@@ -153,11 +194,11 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
         </div>
       </Sezione>
 
-      <Sezione titolo="Foto" descrizione="Massimo 5 MB.">
+      <Sezione titolo="Foto" descrizione="Viene ritagliata in 4:3 e alleggerita in automatico.">
         <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-accent/30">
           <ImageUp className="size-7 text-primary" />
           <span>Scegli una foto dal telefono o dal computer</span>
-          <input name="foto" type="file" accept="image/*" className="max-w-full text-xs file:mr-2 file:rounded-full file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:font-medium file:text-foreground" />
+          <input name="foto" type="file" accept="image/*" onChange={sceltaFoto} className="max-w-full text-xs file:mr-2 file:rounded-full file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:font-medium file:text-foreground" />
         </label>
         {r?.immagine_url && (
           <Label className="cursor-pointer font-normal">
@@ -170,7 +211,7 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
         <p className="rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">{stato.errore}</p>
       )}
       <div className="sticky bottom-20 z-10 flex gap-3 rounded-full border bg-background/85 p-2 shadow-lg backdrop-blur-lg md:bottom-4">
-        <Button type="submit" disabled={inCorso} size="lg" className="flex-1 rounded-xl sm:flex-none">
+        <Button type="submit" disabled={inCorso || preparoFoto} size="lg" className="flex-1 rounded-xl sm:flex-none">
           {inCorso ? <Loader2 className="animate-spin" /> : <Save />}
           {inCorso ? "Salvataggio…" : "Salva ricetta"}
         </Button>

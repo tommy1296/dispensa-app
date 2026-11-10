@@ -365,3 +365,24 @@ export async function ricetteSenzaFotoInstagram(db: SupabaseClient, f: { escludi
   if (error) throw new Error(error.message);
   return { ricette: (data ?? []) as { slug: string; fonte_url: string }[], totale: count ?? 0 };
 }
+
+/** Ricette con una foto non ancora nel formato unico (cartella "ottimizzate" del bucket). */
+export async function ricetteConFotoDaOttimizzare(db: SupabaseClient, f: { escludiSlug?: string[]; limite?: number } = {}) {
+  let q = db
+    .from("ricette")
+    .select("slug, immagine_url", { count: "exact" })
+    .ilike("immagine_url", "http%")
+    .not("immagine_url", "ilike", "%/foto-ricette/ottimizzate/%")
+    .order("id", { ascending: true });
+  if (f.escludiSlug?.length) q = q.not("slug", "in", `(${f.escludiSlug.map((s) => `"${s}"`).join(",")})`);
+  const { data, error, count } = await q.limit(f.limite ?? 10);
+  if (error) throw new Error(error.message);
+  return { ricette: (data ?? []) as { slug: string; immagine_url: string }[], totale: count ?? 0 };
+}
+
+/** Indirizzi di tutte le foto usate dalle ricette. */
+export async function fotoUsate(db: SupabaseClient) {
+  const { data, error } = await db.from("ricette").select("immagine_url").not("immagine_url", "is", null).limit(10000);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => r.immagine_url as string);
+}

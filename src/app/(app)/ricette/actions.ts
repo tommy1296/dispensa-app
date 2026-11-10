@@ -18,6 +18,7 @@ import {
   type Tempo,
   type Tipo,
 } from "@/lib/ricette";
+import { salvaFotoOttimizzata } from "@/lib/foto";
 import { codiceInstagram, salvaFotoInstagram } from "@/lib/foto-instagram";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -30,14 +31,7 @@ const testoONull = (v: FormDataEntryValue | null) => {
 };
 
 async function caricaFoto(db: Awaited<ReturnType<typeof supabaseServer>>, foto: File, slug: string) {
-  const estensione = (foto.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const percorso = `${slug}-${Date.now()}.${estensione}`;
-  const { error } = await db.storage.from("foto-ricette").upload(percorso, foto, {
-    contentType: foto.type || "image/jpeg",
-    upsert: false,
-  });
-  if (error) throw new Error(`Caricamento foto non riuscito: ${error.message}`);
-  return db.storage.from("foto-ricette").getPublicUrl(percorso).data.publicUrl;
+  return (await salvaFotoOttimizzata(db, slug, await foto.arrayBuffer())).url;
 }
 
 function leggiForm(form: FormData): DatiRicetta & { titolo: string; tipo: Tipo } {

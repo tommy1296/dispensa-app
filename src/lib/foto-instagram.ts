@@ -1,9 +1,11 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { salvaFotoOttimizzata } from "./foto";
 
 // Recupera la copertina di un post o reel pubblico di Instagram e ne salva una
-// copia nel bucket "foto-ricette". Gli indirizzi delle immagini di Instagram
-// scadono dopo qualche giorno, quindi non si possono salvare così come sono.
+// copia nel bucket "foto-ricette", già nel formato unico (vedi foto.ts). Gli
+// indirizzi delle immagini di Instagram scadono dopo qualche giorno, quindi non
+// si possono salvare così come sono.
 //
 // L'immagine si legge dalla pagina di incorporamento pubblica del post
 // (instagram.com/p/<codice>/embed/), la stessa che usano i siti per mostrare
@@ -91,11 +93,7 @@ export async function salvaFotoInstagram(db: SupabaseClient, slug: string, fonte
     const dati = await img.arrayBuffer();
     if (dati.byteLength > MAX_BYTE) return { ok: false, motivo: "Immagine troppo grande." };
 
-    const estensione = tipo.includes("png") ? "png" : tipo.includes("webp") ? "webp" : "jpg";
-    const percorso = `instagram/${slug}-${Date.now()}.${estensione}`;
-    const { error } = await db.storage.from("foto-ricette").upload(percorso, dati, { contentType: tipo, upsert: false });
-    if (error) return { ok: false, motivo: `Salvataggio non riuscito: ${error.message}` };
-    return { ok: true, url: db.storage.from("foto-ricette").getPublicUrl(percorso).data.publicUrl };
+    return { ok: true, url: (await salvaFotoOttimizzata(db, slug, dati)).url };
   } catch (e) {
     const nome = (e as Error).name;
     return { ok: false, motivo: nome === "TimeoutError" ? "Instagram non ha risposto in tempo." : (e as Error).message };

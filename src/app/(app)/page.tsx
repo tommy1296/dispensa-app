@@ -1,4 +1,4 @@
-import { ChevronDown, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { RecuperoFotoMancanti } from "@/components/foto-instagram";
 import { IconaTipo } from "@/components/icona-tipo";
@@ -16,6 +16,7 @@ import {
   TIPI,
   cercaRicette,
   contaPerTipo,
+  ricetteConFotoDaOttimizzare,
   ricetteSenzaFotoInstagram,
   type Proteina,
   type Tempo,
@@ -54,7 +55,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
   const si = (k: string) => uno(sp[k]) === "1";
 
   const db = await supabaseServer();
-  const [{ ricette, totale }, conteggi, senzaFoto] = await Promise.all([
+  const [{ ricette, totale }, conteggi, senzaFoto, daOttimizzare] = await Promise.all([
     cercaRicette(db, {
       testo,
       tipi: TIPI.includes(tipo as Tipo) ? [tipo as Tipo] : undefined,
@@ -71,6 +72,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
     }),
     contaPerTipo(db),
     ricetteSenzaFotoInstagram(db, { limite: 1 }),
+    ricetteConFotoDaOttimizzare(db, { limite: 1 }),
   ]);
   const tutte = Object.values(conteggi).reduce((a, b) => a + (b ?? 0), 0);
   const pagine = Math.max(1, Math.ceil(totale / PER_PAGINA));
@@ -106,6 +108,21 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
       </div>
 
       {senzaFoto.totale > 0 && <RecuperoFotoMancanti totale={senzaFoto.totale} />}
+      {daOttimizzare.totale > 0 && (
+        <Link
+          href="/impostazioni"
+          className="mt-4 flex items-center gap-3 rounded-2xl border border-crema-bordo bg-crema p-4 text-sm transition hover:bg-crema/70"
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-terracotta shadow-sm">
+            <Sparkles className="size-4" />
+          </span>
+          <span className="flex-1">
+            {daOttimizzare.totale === 1 ? "1 foto non è" : `${daOttimizzare.totale} foto non sono`} ancora nel formato unico (4:3,
+            leggero).
+          </span>
+          <span className="font-semibold text-terracotta">Ottimizza →</span>
+        </Link>
+      )}
 
       <form action="/" className="mt-6 flex gap-2">
         {Object.entries(sp)
