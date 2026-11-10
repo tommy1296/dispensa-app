@@ -23,7 +23,7 @@ export function FormAccesso({ next }: { next: string }) {
       {stato?.errore && (
         <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{stato.errore}</p>
       )}
-      <Button type="submit" disabled={inCorso} size="lg" className="w-full rounded-full">
+      <Button type="submit" disabled={inCorso} size="lg" className="w-full rounded-xl">
         {inCorso && <Loader2 className="animate-spin" />}
         {inCorso ? "Accesso…" : "Entra"}
       </Button>

@@ -36,7 +36,7 @@ function TreStati({ nome, etichetta, valore }: { nome: string; etichetta: string
 
 function Sezione({ titolo, descrizione, children }: { titolo?: string; descrizione?: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-5 rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
+    <section className="space-y-5 rounded-[22px] border bg-card p-5 shadow-morbida sm:p-6">
       {titolo && (
         <div>
           <h2 className="font-serif text-xl font-semibold">{titolo}</h2>
@@ -58,7 +58,7 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
 
       <Sezione>
         <Campo id="r-titolo" etichetta="Titolo *">
-          <Input id="r-titolo" name="titolo" required defaultValue={r?.titolo} className="h-11 font-serif text-lg md:text-lg" />
+          <Input id="r-titolo" name="titolo" required defaultValue={r?.titolo} className="h-11 text-lg md:text-lg" />
         </Campo>
         <div className="grid gap-4 sm:grid-cols-3">
           <Campo id="r-tipo" etichetta="Tipo">
@@ -170,11 +170,11 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
         <p className="rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">{stato.errore}</p>
       )}
       <div className="sticky bottom-20 z-10 flex gap-3 rounded-full border bg-background/85 p-2 shadow-lg backdrop-blur-lg md:bottom-4">
-        <Button type="submit" disabled={inCorso} size="lg" className="flex-1 rounded-full sm:flex-none">
+        <Button type="submit" disabled={inCorso} size="lg" className="flex-1 rounded-xl sm:flex-none">
           {inCorso ? <Loader2 className="animate-spin" /> : <Save />}
           {inCorso ? "Salvataggio…" : "Salva ricetta"}
         </Button>
-        <Button asChild variant="ghost" size="lg" className="rounded-full">
+        <Button asChild variant="ghost" size="lg" className="rounded-xl">
           <Link href={r ? `/ricette/${r.slug}` : "/"}>Annulla</Link>
         </Button>
       </div>

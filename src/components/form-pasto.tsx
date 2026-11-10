@@ -61,7 +61,7 @@ export function FormPasto({ titoli, oggi }: { titoli: string[]; oggi: string }) 
         <Input id="p-verdura" name="verdura" />
       </div>
       <div className="sm:col-span-6">
-        <Button disabled={inCorso} className="rounded-full">
+        <Button disabled={inCorso} className="rounded-xl">
           {inCorso ? <Loader2 className="animate-spin" /> : <Plus />}
           {inCorso ? "Salvataggio…" : "Aggiungi allo storico"}
         </Button>

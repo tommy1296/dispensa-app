@@ -40,7 +40,7 @@ export default async function Preferite() {
           <p className="mt-4 max-w-sm text-muted-foreground">
             Apri una ricetta e tocca <strong className="text-foreground">Aggiungi alle preferite</strong> per ritrovarla qui.
           </p>
-          <Button asChild className="mt-5 rounded-full">
+          <Button asChild className="mt-5 rounded-xl">
             <Link href="/">Vai alle ricette</Link>
           </Button>
         </div>
@@ -48,7 +48,7 @@ export default async function Preferite() {
 
       {TIPI.filter((t) => perTipo.has(t)).map((t) => (
         <section key={t} className="mt-10">
-          <h2 className="mb-4 flex items-center gap-2.5 text-lg font-semibold">
+          <h2 className="mb-4 flex items-center gap-2.5 font-serif text-xl font-semibold">
             <span className="flex size-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
               <IconaTipo tipo={t} className="size-4" />
             </span>

@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Literata, Manrope } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
+const literata = Literata({ subsets: ["latin"], variable: "--font-literata", style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
   title: "Dispensa",
@@ -13,15 +13,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf6ef" },
-    { media: "(prefers-color-scheme: dark)", color: "#171311" },
-  ],
+  themeColor: "#f6f2ea",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="it" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="it" className={`${manrope.variable} ${literata.variable}`}>
       <body className="min-h-screen antialiased">
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <Toaster position="top-center" richColors />

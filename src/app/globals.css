@@ -1,67 +1,50 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Il tema scuro segue l'impostazione del sistema. */
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/* Per ora solo tema chiaro: la variante dark non si attiva mai. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Palette calda di Dispensa (terracotta, crema, salvia) nei nomi che usano
- * i componenti shadcn/ui (src/components/ui).
+ * Palette ispirata a "Plate": fondo crema caldo, card bianche con bordo
+ * sottile, verde bosco come colore principale, terracotta e giallo crema
+ * come accenti. Titoli in Literata (serif), interfaccia in Manrope.
  */
 :root {
   --radius: 0.875rem;
 
-  --background: #faf6ef;
-  --foreground: #2b2420;
+  --background: #f6f2ea;
+  --foreground: #1f1b16;
   --card: #ffffff;
-  --card-foreground: #2b2420;
+  --card-foreground: #1f1b16;
   --popover: #ffffff;
-  --popover-foreground: #2b2420;
-  --primary: #b4532a;
-  --primary-foreground: #fffaf5;
-  --secondary: #f3ece0;
-  --secondary-foreground: #3d332c;
-  --muted: #f3ece0;
-  --muted-foreground: #6f6359;
-  --accent: #f6e3d6;
-  --accent-foreground: #8f3f1d;
-  --destructive: #b42318;
-  --border: #e6dccd;
-  --input: #ddd1bf;
-  --ring: #d08a63;
+  --popover-foreground: #1f1b16;
+  --primary: #2f6b45;
+  --primary-foreground: #ffffff;
+  --secondary: #f2ede3;
+  --secondary-foreground: #2b2620;
+  --muted: #f2ede3;
+  --muted-foreground: #7b7266;
+  --accent: #e6f0e1;
+  --accent-foreground: #2f6b45;
+  --destructive: #c4442a;
+  --border: #ebe4d7;
+  --input: #e4dccd;
+  --ring: #6f9d7d;
 
-  --verde: #4f7a3a;
-  --verde-tenue: #e3eedb;
-  --ambra: #a8650f;
-  --ambra-tenue: #fbecd2;
-}
+  --inchiostro: #1c1a17;
+  --terracotta: #d2562b;
+  --terracotta-tenue: #fbe7dd;
+  --crema: #fbf2d9;
+  --crema-bordo: #efdfae;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #171311;
-    --foreground: #f2ebe3;
-    --card: #211c19;
-    --card-foreground: #f2ebe3;
-    --popover: #262019;
-    --popover-foreground: #f2ebe3;
-    --primary: #e07a4b;
-    --primary-foreground: #1d120c;
-    --secondary: #2d2622;
-    --secondary-foreground: #e9dfd4;
-    --muted: #2d2622;
-    --muted-foreground: #b3a698;
-    --accent: #3d261b;
-    --accent-foreground: #f4a47c;
-    --destructive: #e5534b;
-    --border: #3a322c;
-    --input: #4a4038;
-    --ring: #a8562f;
+  --verde: #2f6b45;
+  --verde-tenue: #e6f0e1;
+  --ambra: #b5781a;
+  --ambra-tenue: #fbf2d9;
 
-    --verde: #9cc483;
-    --verde-tenue: #24301d;
-    --ambra: #f0b45b;
-    --ambra-tenue: #3a2a12;
-  }
+  --macro-proteina: #3d7d52;
+  --macro-carboidrato: #dba23a;
+  --macro-verdura: #d4592e;
 }
 
 @theme inline {
@@ -90,13 +73,23 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-inchiostro: var(--inchiostro);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-tenue: var(--terracotta-tenue);
+  --color-crema: var(--crema);
+  --color-crema-bordo: var(--crema-bordo);
+  --color-proteina: var(--macro-proteina);
+  --color-carboidrato: var(--macro-carboidrato);
+  --color-verdura: var(--macro-verdura);
   --color-verde: var(--verde);
   --color-verde-tenue: var(--verde-tenue);
   --color-ambra: var(--ambra);
   --color-ambra-tenue: var(--ambra-tenue);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-literata), ui-serif, Georgia, serif;
+
+  --shadow-morbida: 0 1px 2px rgb(60 45 25 / 0.04), 0 6px 18px -10px rgb(60 45 25 / 0.14);
 }
 
 @layer base {
@@ -124,7 +117,7 @@
   }
   .prosa ol > li::before {
     content: counter(passo);
-    @apply absolute top-0 left-0 flex size-7 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground;
+    @apply absolute top-0 left-0 flex size-7 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground;
   }
   .prosa ul {
     @apply list-disc space-y-1 pl-5 marker:text-primary;

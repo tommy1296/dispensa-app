@@ -3,12 +3,12 @@ import { cn } from "@/lib/utils";
 import { IconaTipo } from "./icona-tipo";
 
 const SFUMATURE: Record<Tipo, string> = {
-  pasto: "from-orange-200 via-amber-100 to-orange-50 text-orange-700/70 dark:from-orange-950 dark:via-amber-950 dark:to-stone-900 dark:text-orange-300/60",
-  colazione: "from-yellow-200 via-amber-100 to-orange-50 text-amber-700/70 dark:from-yellow-950 dark:via-amber-950 dark:to-stone-900 dark:text-amber-300/60",
-  dolce: "from-rose-200 via-pink-100 to-orange-50 text-rose-700/60 dark:from-rose-950 dark:via-pink-950 dark:to-stone-900 dark:text-rose-300/60",
-  spuntino: "from-lime-200 via-green-100 to-amber-50 text-lime-800/60 dark:from-lime-950 dark:via-green-950 dark:to-stone-900 dark:text-lime-300/60",
-  salsa: "from-emerald-200 via-teal-100 to-lime-50 text-emerald-800/60 dark:from-emerald-950 dark:via-teal-950 dark:to-stone-900 dark:text-emerald-300/60",
-  pane: "from-stone-300 via-amber-100 to-orange-50 text-stone-700/70 dark:from-stone-800 dark:via-amber-950 dark:to-stone-900 dark:text-stone-300/60",
+  pasto: "from-[#f3e2c4] via-[#f7ecd8] to-[#fbf6ec] text-[#b9653a]",
+  colazione: "from-[#f6e3b4] via-[#f9eed2] to-[#fdf8ec] text-[#b5781a]",
+  dolce: "from-[#f5d6cc] via-[#f9e6df] to-[#fdf5f1] text-[#c2502d]",
+  spuntino: "from-[#dfe8cf] via-[#edf2e2] to-[#f8faf2] text-[#5b7d3a]",
+  salsa: "from-[#d5e6d8] via-[#e7f0e8] to-[#f6faf5] text-[#2f6b45]",
+  pane: "from-[#eadcc5] via-[#f3eadb] to-[#fbf7ef] text-[#8a6438]",
 };
 
 export function Copertina({
@@ -35,8 +35,8 @@ export function Copertina({
       className={cn("relative flex h-full w-full items-center justify-center bg-gradient-to-br", SFUMATURE[tipo], className)}
       aria-hidden
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.55),transparent_60%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.06),transparent_60%)]" />
-      <IconaTipo tipo={tipo} className={cn("relative", grande ? "size-24" : "size-12")} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.6),transparent_60%)]" />
+      <IconaTipo tipo={tipo} className={cn("relative opacity-80", grande ? "size-20" : "size-10")} />
     </div>
   );
 }

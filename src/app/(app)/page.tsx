@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { IconaTipo } from "@/components/icona-tipo";
 import { SchedaRicetta } from "@/components/scheda-ricetta";
@@ -77,12 +77,32 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
 
   return (
     <main>
-      <div className="mb-6">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Cosa cuciniamo oggi?</h1>
-        <p className="mt-1 text-muted-foreground">{tutte} ricette nella tua dispensa.</p>
+      <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] text-terracotta uppercase">
+        <span className="size-1.5 rounded-full bg-terracotta" /> Il tuo ricettario
+      </p>
+      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">Cosa cuciniamo oggi?</h1>
+
+      <div className="mt-6 flex flex-col gap-4 rounded-2xl border bg-card p-4 shadow-morbida sm:p-5 lg:flex-row lg:items-center">
+        <dl className="flex flex-1 divide-x">
+          <Statistica etichetta="Ricette" valore={tutte} />
+          {TIPI.filter((t) => conteggi[t])
+            .slice(0, 3)
+            .map((t, i) => (
+              <Statistica key={t} etichetta={ETICHETTA_TIPO[t]} valore={conteggi[t] ?? 0} className={cn(i === 2 && "hidden sm:block")} />
+            ))}
+        </dl>
+        <div className="flex items-start gap-3 rounded-xl border border-crema-bordo bg-crema px-4 py-3 lg:max-w-sm">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-terracotta shadow-sm">
+            <Lightbulb className="size-4" />
+          </span>
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.14em] text-ambra uppercase">Promemoria</p>
+            <p className="font-serif text-[15px] leading-snug italic">«A pranzo un piatto da asporto, a cena pane o pita.»</p>
+          </div>
+        </div>
       </div>
 
-      <form action="/" className="flex gap-2">
+      <form action="/" className="mt-6 flex gap-2">
         {Object.entries(sp)
           .filter(([k]) => !["q", "pagina"].includes(k))
           .map(([k, v]) => (
@@ -93,12 +113,12 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
           <Input
             name="q"
             defaultValue={testo}
-            placeholder="Cerca per nome o ingrediente: zucca, ceci, tofu…"
-            className="h-11 rounded-full bg-card pl-10 shadow-sm"
+            placeholder="Cerca ricette, ingredienti…"
+            className="h-11 bg-card pl-10 shadow-xs"
             type="search"
           />
         </div>
-        <Button size="lg" className="h-11 rounded-full px-5">
+        <Button size="lg" className="h-11 px-5 font-semibold">
           Cerca
         </Button>
       </form>
@@ -114,14 +134,14 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
         ))}
       </div>
 
-      <details className="group mt-3 rounded-2xl border bg-card shadow-sm" open={filtriAttivi > 0}>
-        <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+      <details className="group mt-3 rounded-2xl border bg-card shadow-xs" open={filtriAttivi > 0}>
+        <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3.5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
           <SlidersHorizontal className="size-4 text-muted-foreground" />
           Filtri
           {filtriAttivi > 0 && <Badge className="h-5 min-w-5 rounded-full px-1.5">{filtriAttivi}</Badge>}
           <ChevronDown className="ml-auto size-4 text-muted-foreground transition group-open:rotate-180" />
         </summary>
-        <form action="/" className="grid gap-4 border-t px-4 pt-4 pb-4 sm:grid-cols-3">
+        <form action="/" className="grid gap-4 border-t border-dashed px-5 pt-4 pb-5 sm:grid-cols-3">
           {testo && <input type="hidden" name="q" value={testo} />}
           {tipo && <input type="hidden" name="tipo" value={tipo} />}
           <div className="grid gap-1.5">
@@ -159,7 +179,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
             ].map(([k, nome]) => (
               <Label
                 key={k}
-                className="cursor-pointer rounded-full border bg-background px-3 py-2 font-normal transition hover:bg-secondary has-[[data-state=checked]]:border-primary/40 has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground"
+                className="cursor-pointer rounded-full border bg-card px-3.5 py-2 font-medium transition hover:bg-secondary has-[[data-state=checked]]:border-primary/30 has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:text-accent-foreground"
               >
                 <Checkbox name={k} value="1" defaultChecked={si(k)} />
                 {nome}
@@ -167,27 +187,30 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
             ))}
           </div>
           <div className="flex gap-2 sm:col-span-3">
-            <Button className="rounded-full">Applica</Button>
-            <Button asChild variant="ghost" className="rounded-full">
+            <Button className="rounded-xl">Applica</Button>
+            <Button asChild variant="ghost" className="rounded-xl">
               <Link href={link({}, { tipo: tipo || null, q: testo || null })}>Azzera</Link>
             </Button>
           </div>
         </form>
       </details>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        {totale === 1 ? "1 ricetta" : `${totale} ricette`}
-        {testo && <> per «{testo}»</>}
-      </p>
+      <div className="mt-8 flex items-baseline justify-between gap-3">
+        <h2 className="font-serif text-2xl font-semibold tracking-tight">{tipo ? ETICHETTA_TIPO[tipo] : "Tutte le ricette"}</h2>
+        <p className="text-sm text-muted-foreground">
+          {totale === 1 ? "1 ricetta" : `${totale} ricette`}
+          {testo && <> per «{testo}»</>}
+        </p>
+      </div>
 
       {totale === 0 ? (
-        <div className="mt-4 flex flex-col items-center rounded-2xl border border-dashed px-6 py-16 text-center">
+        <div className="mt-4 flex flex-col items-center rounded-2xl border-2 border-dashed px-6 py-16 text-center">
           <SearchX className="size-10 text-muted-foreground/60" />
           <p className="mt-3 font-medium">Nessuna ricetta trovata</p>
           <p className="mt-1 text-sm text-muted-foreground">Prova con un altro ingrediente o togli qualche filtro.</p>
         </div>
       ) : (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {ricette.map((r) => (
             <SchedaRicetta key={r.id} r={r} />
           ))}
@@ -197,13 +220,13 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
       {pagine > 1 && (
         <nav className="mt-10 flex items-center justify-center gap-3 text-sm">
           {pagina > 1 ? (
-            <Button asChild variant="outline" className="rounded-full">
+            <Button asChild variant="outline" className="rounded-xl">
               <Link href={link(sp, { pagina: String(pagina - 1) })}>
                 <ChevronLeft /> Indietro
               </Link>
             </Button>
           ) : (
-            <Button variant="outline" className="rounded-full" disabled>
+            <Button variant="outline" className="rounded-xl" disabled>
               <ChevronLeft /> Indietro
             </Button>
           )}
@@ -211,13 +234,13 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
             {pagina} / {pagine}
           </span>
           {pagina < pagine ? (
-            <Button asChild variant="outline" className="rounded-full">
+            <Button asChild variant="outline" className="rounded-xl">
               <Link href={link(sp, { pagina: String(pagina + 1) })}>
                 Avanti <ChevronRight />
               </Link>
             </Button>
           ) : (
-            <Button variant="outline" className="rounded-full" disabled>
+            <Button variant="outline" className="rounded-xl" disabled>
               Avanti <ChevronRight />
             </Button>
           )}
@@ -232,11 +255,20 @@ function Chip({ href, attivo, children }: { href: string; attivo: boolean; child
     <Link
       href={href}
       className={cn(
-        "flex shrink-0 items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-sm font-medium whitespace-nowrap shadow-xs transition hover:border-primary/30 hover:bg-accent/50",
-        attivo && "border-primary bg-primary text-primary-foreground hover:border-primary hover:bg-primary/90",
+        "flex shrink-0 items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition hover:bg-secondary",
+        attivo && "border-inchiostro bg-inchiostro text-white hover:bg-inchiostro/90",
       )}
     >
       {children}
     </Link>
+  );
+}
+
+function Statistica({ etichetta, valore, className }: { etichetta: string; valore: number; className?: string }) {
+  return (
+    <div className={cn("min-w-0 px-3 first:pl-0 sm:px-6", className)}>
+      <dt className="truncate text-[10px] font-bold tracking-[0.12em] text-muted-foreground uppercase">{etichetta}</dt>
+      <dd className="mt-1 font-serif text-2xl font-semibold tabular-nums">{valore}</dd>
+    </div>
   );
 }
