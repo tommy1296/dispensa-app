@@ -1,4 +1,4 @@
-import { ChevronDown, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ChevronDown, FilePen, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { RecuperoFotoMancanti } from "@/components/foto-instagram";
 import { IconaTipo } from "@/components/icona-tipo";
@@ -15,6 +15,7 @@ import {
   TEMPI,
   TIPI,
   cercaRicette,
+  contaBozze,
   contaPerTipo,
   ricetteConFotoDaOttimizzare,
   ricetteSenzaFotoInstagram,
@@ -55,7 +56,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
   const si = (k: string) => uno(sp[k]) === "1";
 
   const db = await supabaseServer();
-  const [{ ricette, totale }, conteggi, senzaFoto, daOttimizzare] = await Promise.all([
+  const [{ ricette, totale }, conteggi, senzaFoto, daOttimizzare, bozze] = await Promise.all([
     cercaRicette(db, {
       testo,
       tipi: TIPI.includes(tipo as Tipo) ? [tipo as Tipo] : undefined,
@@ -73,6 +74,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
     contaPerTipo(db),
     ricetteSenzaFotoInstagram(db, { limite: 1 }),
     ricetteConFotoDaOttimizzare(db, { limite: 1 }),
+    contaBozze(db),
   ]);
   const tutte = Object.values(conteggi).reduce((a, b) => a + (b ?? 0), 0);
   const pagine = Math.max(1, Math.ceil(totale / PER_PAGINA));
@@ -107,6 +109,20 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
         </div>
       </div>
 
+      {bozze > 0 && (
+        <Link
+          href="/bozze"
+          className="mt-4 flex items-center gap-3 rounded-2xl border border-crema-bordo bg-crema p-4 text-sm transition hover:bg-crema/70"
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-terracotta shadow-sm">
+            <FilePen className="size-4" />
+          </span>
+          <span className="flex-1">
+            {bozze === 1 ? "1 ricetta salvata da Telegram è" : `${bozze} ricette salvate da Telegram sono`} ancora in bozza.
+          </span>
+          <span className="font-semibold text-terracotta">Completa →</span>
+        </Link>
+      )}
       {senzaFoto.totale > 0 && <RecuperoFotoMancanti totale={senzaFoto.totale} />}
       {daOttimizzare.totale > 0 && (
         <Link

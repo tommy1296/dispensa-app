@@ -49,6 +49,7 @@ function riassunto(r: RicettaInElenco, sito: string) {
     senza_glutine: r.senza_glutine,
     scheda_parziale: r.scheda_parziale,
     preferita: r.preferita,
+    bozza: r.bozza,
     fonte: r.fonte_url,
     link_app: `${sito}/ricette/${r.slug}`,
   };
@@ -75,6 +76,10 @@ const campiRicetta = {
   fonte_url: z.string().url().nullable().optional(),
   immagine_url: z.string().url().nullable().optional(),
   preferita: z.boolean().optional(),
+  bozza: z
+    .boolean()
+    .optional()
+    .describe("true = bozza da completare (esclusa dalla ricerca normale). Quando completi una bozza mettila a false"),
 };
 
 function registraStrumenti(server: McpServer, sito: string) {
@@ -86,7 +91,9 @@ function registraStrumenti(server: McpServer, sito: string) {
       title: "Cerca ricette",
       description:
         "Cerca nel ricettario di Tommaso con testo libero e filtri. Restituisce un elenco sintetico; usa leggi_ricetta per ingredienti e procedimento. " +
-        "Per proporre pasti usa ordine 'casuale' ed escludi_slug con le ricette mangiate di recente (vedi storico_pasti).",
+        "Per proporre pasti usa ordine 'casuale' ed escludi_slug con le ricette mangiate di recente (vedi storico_pasti). " +
+        "Le bozze (salvate al volo dal bot Telegram, con la sola didascalia del post) sono escluse: per elencarle usa bozze=true. " +
+        "Per completare una bozza: leggi_ricetta, poi modifica_ricetta con titolo, ingredienti, procedimento in passaggi, etichette e bozza=false.",
       inputSchema: z.object({
         testo: z.string().optional().describe("Parole da cercare in titolo, ingredienti e procedimento"),
         tipi: z.array(z.enum(TIPI)).optional().describe("pasto = pranzo o cena"),
@@ -99,6 +106,7 @@ function registraStrumenti(server: McpServer, sito: string) {
         vegetariana: z.boolean().optional(),
         senza_glutine: z.boolean().optional(),
         preferita: z.boolean().optional(),
+        bozze: z.boolean().optional().describe("true = solo le bozze da completare"),
         ingredienti: z.array(z.string()).optional().describe("Devono comparire tutti, es. ['zucca', 'ceci']"),
         escludi_ingredienti: z.array(z.string()).optional(),
         escludi_slug: z.array(z.string()).optional(),
@@ -125,6 +133,7 @@ function registraStrumenti(server: McpServer, sito: string) {
           vegetariana: a.vegetariana,
           senzaGlutine: a.senza_glutine,
           preferita: a.preferita,
+          bozze: a.bozze,
           ingredienti: a.ingredienti,
           escludiIngredienti: a.escludi_ingredienti,
           escludiSlug: a.escludi_slug,

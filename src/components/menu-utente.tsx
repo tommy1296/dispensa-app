@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Settings } from "lucide-react";
+import { FilePen, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { esci } from "@/app/login/actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -39,6 +39,11 @@ export function MenuUtente({ email }: { email: string }) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="rounded-lg py-2 font-medium">
+          <Link href="/bozze">
+            <FilePen /> Bozze
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild className="rounded-lg py-2 font-medium">
           <Link href="/impostazioni">
             <Settings /> Impostazioni

@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageUp, Loader2, Save } from "lucide-react";
+import { FilePen, ImageUp, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { salvaRicetta } from "@/app/(app)/ricette/actions";
@@ -96,6 +96,16 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
   return (
     <form action={azione} className="space-y-6">
       {r && <input type="hidden" name="slug" value={r.slug} />}
+
+      {r?.bozza && (
+        <p className="flex gap-3 rounded-2xl border border-crema-bordo bg-crema p-4 text-sm">
+          <FilePen className="mt-0.5 size-4 shrink-0 text-ambra" />
+          <span>
+            È una <strong>bozza</strong>: sistema titolo, ingredienti ed etichette, poi tocca <strong>Salva e completa</strong> per
+            metterla tra le ricette. La didascalia del post è nel procedimento.
+          </span>
+        </p>
+      )}
 
       <Sezione>
         <Campo id="r-titolo" etichetta="Titolo *">
@@ -213,8 +223,22 @@ export function FormRicetta({ ricetta }: { ricetta?: Ricetta }) {
       <div className="sticky bottom-20 z-10 flex gap-3 rounded-full border bg-background/85 p-2 shadow-lg backdrop-blur-lg md:bottom-4">
         <Button type="submit" disabled={inCorso || preparoFoto} size="lg" className="flex-1 rounded-xl sm:flex-none">
           {inCorso ? <Loader2 className="animate-spin" /> : <Save />}
-          {inCorso ? "Salvataggio…" : "Salva ricetta"}
+          {inCorso ? "Salvataggio…" : r?.bozza ? "Salva e completa" : "Salva ricetta"}
         </Button>
+        {r?.bozza && (
+          <Button
+            type="submit"
+            name="salva_come"
+            value="bozza"
+            variant="outline"
+            disabled={inCorso || preparoFoto}
+            size="lg"
+            className="rounded-xl"
+            title="Salva le modifiche e lasciala tra le bozze"
+          >
+            <FilePen /> <span className="hidden sm:inline">Salva in</span> bozza
+          </Button>
+        )}
         <Button asChild variant="ghost" size="lg" className="rounded-xl">
           <Link href={r ? `/ricette/${r.slug}` : "/"}>Annulla</Link>
         </Button>

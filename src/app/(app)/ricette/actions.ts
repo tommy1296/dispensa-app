@@ -53,6 +53,8 @@ function leggiForm(form: FormData): DatiRicetta & { titolo: string; tipo: Tipo }
     senza_glutine: SENZA_GLUTINE.includes(sg as SenzaGlutine) ? (sg as SenzaGlutine) : "no",
     scheda_parziale: form.get("scheda_parziale") === "on",
     preferita: form.get("preferita") === "on",
+    // "Salva in bozza" la lascia tra le bozze; "Salva ricetta" la toglie.
+    bozza: form.get("salva_come") === "bozza",
     ingredienti: String(form.get("ingredienti") ?? "")
       .split("\n")
       .map((r) => r.replace(/^\s*[-*•]\s*/, "").trim())
@@ -113,6 +115,14 @@ export async function invertiPreferita(form: FormData) {
   if (r) await aggiornaRicetta(db, slug, { preferita: !r.preferita });
   revalidatePath(`/ricette/${slug}`);
   revalidatePath("/preferiti");
+}
+
+/** Toglie una ricetta dalle bozze così com'è (per esempio dopo averla completata con Claude). */
+export async function completaBozza(form: FormData) {
+  const db = await supabaseServer();
+  const slug = String(form.get("slug"));
+  await aggiornaRicetta(db, slug, { bozza: false });
+  revalidatePath("/", "layout");
 }
 
 export type EsitoRecupero = { ok: boolean; messaggio: string };

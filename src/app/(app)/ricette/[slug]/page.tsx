@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Heart, Info, Pencil, StickyNote } from "lucide-react";
+import { ArrowLeft, CheckCheck, ExternalLink, FilePen, Heart, Info, Pencil, StickyNote } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Copertina } from "@/components/copertina";
@@ -14,7 +14,7 @@ import { codiceInstagram } from "@/lib/foto-instagram";
 import { ETICHETTA_TIPO, leggiRicetta } from "@/lib/ricette";
 import { supabaseServer } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
-import { invertiPreferita } from "../actions";
+import { completaBozza, invertiPreferita } from "../actions";
 
 export async function generateMetadata({ params }: PageProps<"/ricette/[slug]">) {
   const { slug } = await params;
@@ -30,10 +30,34 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
   return (
     <main className="mx-auto max-w-5xl">
       <Button asChild variant="ghost" size="sm" className="-ml-2 rounded-xl text-muted-foreground">
-        <Link href="/">
-          <ArrowLeft /> Tutte le ricette
+        <Link href={r.bozza ? "/bozze" : "/"}>
+          <ArrowLeft /> {r.bozza ? "Bozze" : "Tutte le ricette"}
         </Link>
       </Button>
+
+      {r.bozza && (
+        <div className="mt-3 flex flex-col gap-3 rounded-2xl border border-crema-bordo bg-crema p-4 text-sm sm:flex-row sm:items-center">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-terracotta shadow-sm">
+            <FilePen className="size-4" />
+          </span>
+          <p className="flex-1">
+            <strong>Bozza da completare.</strong> Non compare nella ricerca né nelle proposte di Claude finché non la completi.
+          </p>
+          <div className="flex gap-2">
+            <Button asChild size="sm" className="rounded-xl">
+              <Link href={`/ricette/${r.slug}/modifica`}>
+                <Pencil /> Completa
+              </Link>
+            </Button>
+            <form action={completaBozza}>
+              <input type="hidden" name="slug" value={r.slug} />
+              <Button variant="outline" size="sm" className="rounded-xl bg-white" title="Toglila dalle bozze così com'è">
+                <CheckCheck /> È pronta
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="mt-3 grid overflow-hidden rounded-[22px] border bg-card shadow-morbida md:grid-cols-[5fr_6fr]">
         <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[26rem]">
