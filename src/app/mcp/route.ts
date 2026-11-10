@@ -3,6 +3,7 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { opzioni } from "@/lib/cors";
 import { leggiAccesso, origine, risorsaMcp } from "@/lib/oauth";
+import { codiceInstagram, salvaFotoInstagram } from "@/lib/foto-instagram";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   PASTI,
@@ -16,6 +17,7 @@ import {
   eCarneRossa,
   leggiRicetta,
   leggiStorico,
+  ricetteSenzaFotoInstagram,
   registraPasto,
   type DatiRicetta,
   type Ricetta,
@@ -166,7 +168,13 @@ function registraStrumenti(server: McpServer, sito: string) {
     async (dati) => {
       try {
         const r = await creaRicetta(db, dati as DatiRicetta & { titolo: string; tipo: (typeof TIPI)[number] });
-        return testo({ salvata: true, slug: r.slug, link_app: `${sito}/ricette/${r.slug}` });
+        // Senza foto ma con un post Instagram come fonte: prova a usarne la copertina.
+        let foto = Boolean(r.immagine_url);
+        if (!foto && codiceInstagram(r.fonte_url)) {
+          const esito = await salvaFotoInstagram(db, r.slug, r.fonte_url);
+          if (esito.ok) foto = Boolean(await aggiornaRicetta(db, r.slug, { immagine_url: esito.url }));
+        }
+        return testo({ salvata: true, slug: r.slug, foto, link_app: `${sito}/ricette/${r.slug}` });
       } catch (e) {
         return errore(`Salvataggio non riuscito: ${(e as Error).message}`);
       }
@@ -190,6 +198,59 @@ function registraStrumenti(server: McpServer, sito: string) {
         return testo({ aggiornata: true, slug: r.slug, link_app: `${sito}/ricette/${r.slug}` });
       } catch (e) {
         return errore(`Modifica non riuscita: ${(e as Error).message}`);
+      }
+    },
+  );
+
+  server.registerTool(
+    "prendi_foto_instagram",
+    {
+      title: "Prendi foto da Instagram",
+      description:
+        "Usa la copertina del post o reel Instagram della fonte come foto della ricetta (ne salva una copia). " +
+        "Con slug lavora su quella ricetta; senza slug elabora le ricette con link Instagram e senza foto, " +
+        "per circa 30 secondi a chiamata: richiamalo passando in salta gli slug già falliti finché rimaste è 0.",
+      inputSchema: z.object({
+        slug: z.string().optional(),
+        salta: z.array(z.string()).max(500).optional().describe("Slug da non riprovare (già falliti)"),
+        sostituisci: z.boolean().optional().describe("Con slug: sostituisce anche una foto già presente"),
+      }),
+    },
+    async ({ slug, salta, sostituisci }) => {
+      try {
+        if (slug) {
+          const r = await leggiRicetta(db, slug);
+          if (!r) return errore(`Nessuna ricetta con slug "${slug}"`);
+          if (r.immagine_url && !sostituisci) return testo({ slug, gia_presente: true, foto: r.immagine_url });
+          const esito = await salvaFotoInstagram(db, slug, r.fonte_url);
+          if (!esito.ok) return errore(esito.motivo);
+          await aggiornaRicetta(db, slug, { immagine_url: esito.url });
+          return testo({ slug, foto: esito.url, link_app: `${sito}/ricette/${slug}` });
+        }
+
+        const inizio = Date.now();
+        const scartate = [...(salta ?? [])];
+        const riuscite: string[] = [];
+        const fallite: { slug: string; motivo: string }[] = [];
+        let rimaste = 0;
+        while (Date.now() - inizio < 30_000) {
+          const { ricette, totale } = await ricetteSenzaFotoInstagram(db, { escludiSlug: scartate, limite: 1 });
+          rimaste = totale;
+          const r = ricette[0];
+          if (!r) break;
+          const esito = await salvaFotoInstagram(db, r.slug, r.fonte_url);
+          if (esito.ok) {
+            await aggiornaRicetta(db, r.slug, { immagine_url: esito.url });
+            riuscite.push(r.slug);
+          } else {
+            fallite.push({ slug: r.slug, motivo: esito.motivo });
+            scartate.push(r.slug);
+          }
+          rimaste = totale - 1;
+        }
+        return testo({ riuscite, fallite, rimaste });
+      } catch (e) {
+        return errore(`Recupero foto non riuscito: ${(e as Error).message}`);
       }
     },
   );

@@ -11,12 +11,14 @@ import {
   creaRicetta,
   eliminaRicetta,
   leggiRicetta,
+  ricetteSenzaFotoInstagram,
   type DatiRicetta,
   type Proteina,
   type SenzaGlutine,
   type Tempo,
   type Tipo,
 } from "@/lib/ricette";
+import { codiceInstagram, salvaFotoInstagram } from "@/lib/foto-instagram";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type StatoForm = { errore?: string } | undefined;
@@ -32,7 +34,7 @@ async function caricaFoto(db: Awaited<ReturnType<typeof supabaseServer>>, foto: 
   const percorso = `${slug}-${Date.now()}.${estensione}`;
   const { error } = await db.storage.from("foto-ricette").upload(percorso, foto, {
     contentType: foto.type || "image/jpeg",
-    upsert: true,
+    upsert: false,
   });
   if (error) throw new Error(`Caricamento foto non riuscito: ${error.message}`);
   return db.storage.from("foto-ricette").getPublicUrl(percorso).data.publicUrl;
@@ -90,6 +92,10 @@ export async function salvaRicetta(_stato: StatoForm, form: FormData): Promise<S
       await aggiornaRicetta(db, slug, { immagine_url: await caricaFoto(db, foto, slug) });
     } else if (form.get("rimuovi_foto") === "on") {
       await aggiornaRicetta(db, slug, { immagine_url: null });
+    } else if (!slugEsistente && codiceInstagram(dati.fonte_url)) {
+      // Ricetta nuova con link Instagram e senza foto: prova a prendere la copertina.
+      const esito = await salvaFotoInstagram(db, slug, dati.fonte_url ?? null);
+      if (esito.ok) await aggiornaRicetta(db, slug, { immagine_url: esito.url });
     }
   } catch (e) {
     return { errore: (e as Error).message };
@@ -113,4 +119,46 @@ export async function invertiPreferita(form: FormData) {
   if (r) await aggiornaRicetta(db, slug, { preferita: !r.preferita });
   revalidatePath(`/ricette/${slug}`);
   revalidatePath("/preferiti");
+}
+
+export type EsitoRecupero = { ok: boolean; messaggio: string };
+
+/** Prende la copertina del post Instagram della ricetta e la usa come foto. */
+export async function recuperaFotoInstagram(slug: string): Promise<EsitoRecupero> {
+  const db = await supabaseServer();
+  const r = await leggiRicetta(db, slug);
+  if (!r) return { ok: false, messaggio: "Ricetta non trovata." };
+  const esito = await salvaFotoInstagram(db, slug, r.fonte_url);
+  if (!esito.ok) return { ok: false, messaggio: esito.motivo };
+  await aggiornaRicetta(db, slug, { immagine_url: esito.url });
+  revalidatePath("/", "layout");
+  return { ok: true, messaggio: "Foto presa da Instagram." };
+}
+
+export type EsitoLotto = {
+  riuscite: string[];
+  fallite: { slug: string; motivo: string }[];
+  rimaste: number;
+};
+
+/**
+ * Prende le copertine di un piccolo gruppo di ricette senza foto.
+ * La pagina la richiama finché ne restano, saltando quelle già fallite.
+ */
+export async function recuperaFotoMancanti(giaFallite: string[]): Promise<EsitoLotto> {
+  const db = await supabaseServer();
+  const { ricette, totale } = await ricetteSenzaFotoInstagram(db, { escludiSlug: giaFallite, limite: 4 });
+  const esito: EsitoLotto = { riuscite: [], fallite: [], rimaste: 0 };
+  for (const r of ricette) {
+    const foto = await salvaFotoInstagram(db, r.slug, r.fonte_url);
+    if (foto.ok) {
+      await aggiornaRicetta(db, r.slug, { immagine_url: foto.url });
+      esito.riuscite.push(r.slug);
+    } else {
+      esito.fallite.push({ slug: r.slug, motivo: foto.motivo });
+    }
+  }
+  esito.rimaste = Math.max(totale - ricette.length, 0);
+  if (esito.riuscite.length) revalidatePath("/", "layout");
+  return esito;
 }

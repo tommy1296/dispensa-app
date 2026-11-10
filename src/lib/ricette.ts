@@ -347,3 +347,21 @@ export function eCarneRossa(v: VoceStorico) {
   const testo = normalizza(`${v.proteina ?? ""} ${v.ricette?.proteina ?? ""}`);
   return /carne rossa|affettat|salum|prosciutt|speck|manzo|maiale|vitello|salsicc/.test(testo);
 }
+
+// ---------------------------------------------------------------------------
+// Foto da Instagram
+// ---------------------------------------------------------------------------
+
+/** Ricette senza foto con un link Instagram come fonte (per prendere la copertina). */
+export async function ricetteSenzaFotoInstagram(db: SupabaseClient, f: { escludiSlug?: string[]; limite?: number } = {}) {
+  let q = db
+    .from("ricette")
+    .select("slug, fonte_url", { count: "exact" })
+    .is("immagine_url", null)
+    .ilike("fonte_url", "%instagram.com%")
+    .order("id", { ascending: true });
+  if (f.escludiSlug?.length) q = q.not("slug", "in", `(${f.escludiSlug.map((s) => `"${s}"`).join(",")})`);
+  const { data, error, count } = await q.limit(f.limite ?? 10);
+  if (error) throw new Error(error.message);
+  return { ricette: (data ?? []) as { slug: string; fonte_url: string }[], totale: count ?? 0 };
+}
