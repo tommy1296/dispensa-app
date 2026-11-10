@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Copertina } from "@/components/copertina";
 import { EliminaRicetta } from "@/components/elimina-ricetta";
+import { BottoneFotoInstagram } from "@/components/foto-instagram";
 import { Componenti, Etichette, PastoCompleto } from "@/components/etichette";
 import { IconaTipo } from "@/components/icona-tipo";
 import { ListaIngredienti } from "@/components/lista-ingredienti";
 import { TestoSemplice } from "@/components/testo-semplice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { codiceInstagram } from "@/lib/foto-instagram";
 import { ETICHETTA_TIPO, leggiRicetta } from "@/lib/ricette";
 import { supabaseServer } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -36,6 +38,9 @@ export default async function PaginaRicetta({ params }: PageProps<"/ricette/[slu
       <div className="mt-3 grid overflow-hidden rounded-[22px] border bg-card shadow-morbida md:grid-cols-[5fr_6fr]">
         <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[26rem]">
           <Copertina tipo={r.tipo} immagine={r.immagine_url} titolo={r.titolo} grande />
+          {!r.immagine_url && codiceInstagram(r.fonte_url) && (
+            <BottoneFotoInstagram slug={r.slug} className="absolute bottom-4 left-1/2 -translate-x-1/2" />
+          )}
           <span className="absolute top-4 left-4 flex items-center gap-1.5 rounded-md bg-white/95 px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase shadow-sm">
             <IconaTipo tipo={r.tipo} className="size-3.5" /> {ETICHETTA_TIPO[r.tipo]}
           </span>

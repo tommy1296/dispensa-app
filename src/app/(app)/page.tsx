@@ -1,5 +1,6 @@
 import { ChevronDown, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
+import { RecuperoFotoMancanti } from "@/components/foto-instagram";
 import { IconaTipo } from "@/components/icona-tipo";
 import { SchedaRicetta } from "@/components/scheda-ricetta";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
   TIPI,
   cercaRicette,
   contaPerTipo,
+  ricetteSenzaFotoInstagram,
   type Proteina,
   type Tempo,
   type Tipo,
@@ -52,7 +54,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
   const si = (k: string) => uno(sp[k]) === "1";
 
   const db = await supabaseServer();
-  const [{ ricette, totale }, conteggi] = await Promise.all([
+  const [{ ricette, totale }, conteggi, senzaFoto] = await Promise.all([
     cercaRicette(db, {
       testo,
       tipi: TIPI.includes(tipo as Tipo) ? [tipo as Tipo] : undefined,
@@ -68,6 +70,7 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
       offset: (pagina - 1) * PER_PAGINA,
     }),
     contaPerTipo(db),
+    ricetteSenzaFotoInstagram(db, { limite: 1 }),
   ]);
   const tutte = Object.values(conteggi).reduce((a, b) => a + (b ?? 0), 0);
   const pagine = Math.max(1, Math.ceil(totale / PER_PAGINA));
@@ -101,6 +104,8 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
           </div>
         </div>
       </div>
+
+      {senzaFoto.totale > 0 && <RecuperoFotoMancanti totale={senzaFoto.totale} />}
 
       <form action="/" className="mt-6 flex gap-2">
         {Object.entries(sp)

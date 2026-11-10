@@ -3,6 +3,7 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { opzioni } from "@/lib/cors";
 import { leggiAccesso, origine, risorsaMcp } from "@/lib/oauth";
+import { codiceInstagram, salvaFotoInstagram } from "@/lib/foto-instagram";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   PASTI,
@@ -166,7 +167,13 @@ function registraStrumenti(server: McpServer, sito: string) {
     async (dati) => {
       try {
         const r = await creaRicetta(db, dati as DatiRicetta & { titolo: string; tipo: (typeof TIPI)[number] });
-        return testo({ salvata: true, slug: r.slug, link_app: `${sito}/ricette/${r.slug}` });
+        // Senza foto ma con un post Instagram come fonte: prova a usarne la copertina.
+        let foto = Boolean(r.immagine_url);
+        if (!foto && codiceInstagram(r.fonte_url)) {
+          const esito = await salvaFotoInstagram(db, r.slug, r.fonte_url);
+          if (esito.ok) foto = Boolean(await aggiornaRicetta(db, r.slug, { immagine_url: esito.url }));
+        }
+        return testo({ salvata: true, slug: r.slug, foto, link_app: `${sito}/ricette/${r.slug}` });
       } catch (e) {
         return errore(`Salvataggio non riuscito: ${(e as Error).message}`);
       }
