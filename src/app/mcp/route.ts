@@ -86,7 +86,7 @@ function registraStrumenti(server: McpServer, sito: string) {
       title: "Cerca ricette",
       description:
         "Cerca nel ricettario di Tommaso con testo libero e filtri. Restituisce un elenco sintetico; usa leggi_ricetta per ingredienti e procedimento. " +
-        "Per variare i pasti usa escludi_slug con le ricette mangiate di recente (vedi storico_pasti).",
+        "Per proporre pasti usa ordine 'casuale' ed escludi_slug con le ricette mangiate di recente (vedi storico_pasti).",
       inputSchema: z.object({
         testo: z.string().optional().describe("Parole da cercare in titolo, ingredienti e procedimento"),
         tipi: z.array(z.enum(TIPI)).optional().describe("pasto = pranzo o cena"),
@@ -102,7 +102,10 @@ function registraStrumenti(server: McpServer, sito: string) {
         ingredienti: z.array(z.string()).optional().describe("Devono comparire tutti, es. ['zucca', 'ceci']"),
         escludi_ingredienti: z.array(z.string()).optional(),
         escludi_slug: z.array(z.string()).optional(),
-        ordine: z.enum(["titolo", "recenti"]).optional(),
+        ordine: z
+          .enum(["titolo", "recenti", "casuale"])
+          .optional()
+          .describe("casuale = ordine diverso a ogni chiamata; usalo per proporre pasti e variare"),
         limite: z.number().int().min(1).max(100).optional().describe("Default 20"),
         offset: z.number().int().min(0).optional(),
       }),
