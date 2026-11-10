@@ -161,9 +161,23 @@ export interface FiltriRicerca {
   ingredienti?: string[];
   escludiIngredienti?: string[];
   escludiSlug?: string[];
-  ordine?: "titolo" | "recenti";
+  /** "casuale" mescola i risultati a ogni chiamata (per variare i pasti proposti). */
+  ordine?: "titolo" | "recenti" | "casuale";
   limite?: number;
   offset?: number;
+}
+
+/** Quante ricette al massimo si mescolano con l'ordine casuale. */
+const MAX_CASUALE = 1000;
+
+/** Fisher–Yates: restituisce una copia mescolata. */
+function mescola<T>(elementi: T[]) {
+  const a = [...elementi];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 export async function cercaRicette(db: SupabaseClient, f: FiltriRicerca) {
@@ -206,7 +220,8 @@ export async function cercaRicette(db: SupabaseClient, f: FiltriRicerca) {
       f.ordine === "recenti"
         ? q.order("creata_il", { ascending: false }).order("id", { ascending: false })
         : q.order("titolo", { ascending: true });
-    return q.range(offset, offset + limite - 1);
+    // In ordine casuale si leggono tutte le ricette che passano i filtri e si mescolano qui sotto.
+    return f.ordine === "casuale" ? q.range(0, MAX_CASUALE - 1) : q.range(offset, offset + limite - 1);
   };
 
   let risultato = await costruisci(f.testo?.trim() ? "fts" : "nessuno");
@@ -215,8 +230,10 @@ export async function cercaRicette(db: SupabaseClient, f: FiltriRicerca) {
     risultato = await costruisci("titolo");
   }
   if (risultato.error) throw new Error(risultato.error.message);
+  let ricette = (risultato.data ?? []) as RicettaInElenco[];
+  if (f.ordine === "casuale") ricette = mescola(ricette).slice(offset, offset + limite);
   return {
-    ricette: (risultato.data ?? []) as RicettaInElenco[],
+    ricette,
     totale: risultato.count ?? 0,
     limite,
     offset,
