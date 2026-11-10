@@ -83,23 +83,47 @@ async function fileInutilizzati(db: Awaited<ReturnType<typeof supabaseServer>>) 
   return tutti.filter((f) => !usati.has(f.percorso) && f.creato < limite);
 }
 
-export type EsitoPulizia = { file: number; byte: number };
+export type EsitoPulizia = { file: number; byte: number } | { errore: string };
+
+// In produzione Next nasconde il messaggio degli errori lanciati dalle azioni:
+// si restituisce come valore, così la pagina può mostrarlo.
+async function conErrore(fn: () => Promise<{ file: number; byte: number }>): Promise<EsitoPulizia> {
+  try {
+    return await fn();
+  } catch (e) {
+    return { errore: (e as Error).message };
+  }
+}
 
 /** Conta i file inutilizzati, senza eliminarli. */
 export async function contaFotoInutilizzate(): Promise<EsitoPulizia> {
-  const db = await supabaseServer();
-  const file = await fileInutilizzati(db);
-  return { file: file.length, byte: file.reduce((a, f) => a + f.byte, 0) };
+  return conErrore(async () => {
+    const db = await supabaseServer();
+    const file = await fileInutilizzati(db);
+    return { file: file.length, byte: file.reduce((a, f) => a + f.byte, 0) };
+  });
 }
 
 /** Elimina definitivamente i file che nessuna ricetta usa più. */
 export async function eliminaFotoInutilizzate(): Promise<EsitoPulizia> {
-  const db = await supabaseServer();
-  const file = await fileInutilizzati(db);
-  for (let i = 0; i < file.length; i += 100) {
-    const gruppo = file.slice(i, i + 100);
-    const { error } = await db.storage.from(BUCKET).remove(gruppo.map((f) => f.percorso));
-    if (error) throw new Error(`Eliminazione non riuscita: ${error.message}`);
-  }
-  return { file: file.length, byte: file.reduce((a, f) => a + f.byte, 0) };
+  return conErrore(async () => {
+    const db = await supabaseServer();
+    const file = await fileInutilizzati(db);
+    let eliminati = 0;
+    let byte = 0;
+    for (let i = 0; i < file.length; i += 50) {
+      const gruppo = file.slice(i, i + 50);
+      const { data, error } = await db.storage.from(BUCKET).remove(gruppo.map((f) => f.percorso));
+      if (error) throw new Error(`Eliminazione non riuscita dopo ${eliminati} file: ${error.message}`);
+      const tolti = new Set((data ?? []).map((o) => o.name));
+      eliminati += tolti.size;
+      byte += gruppo
+        .filter((f) => tolti.has(f.percorso) || tolti.has(f.percorso.split("/").pop() ?? ""))
+        .reduce((a, f) => a + f.byte, 0);
+    }
+    if (eliminati === 0 && file.length > 0) {
+      throw new Error("Supabase non ha eliminato nessun file: riesegui supabase/schema.sql nell'SQL Editor e riprova.");
+    }
+    return { file: eliminati, byte };
+  });
 }

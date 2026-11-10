@@ -102,28 +102,28 @@ export function OttimizzaFoto({ totale }: { totale: number }) {
 /** Elimina dallo Storage i file che nessuna ricetta usa più, dopo averli contati. */
 export function PuliziaFoto() {
   const [stato, setStato] = useState<"pronto" | "conto" | "contate" | "elimino" | "fatto">("pronto");
-  const [conteggio, setConteggio] = useState<EsitoPulizia | null>(null);
+  const [conteggio, setConteggio] = useState<{ file: number; byte: number } | null>(null);
+
+  async function esegui(azione: () => Promise<EsitoPulizia>, poi: typeof stato, seErrore: typeof stato) {
+    try {
+      const esito = await azione();
+      if ("errore" in esito) throw new Error(esito.errore);
+      setConteggio(esito);
+      setStato(poi);
+    } catch (e) {
+      toast.error((e as Error).message);
+      setStato(seErrore);
+    }
+  }
 
   async function conta() {
     setStato("conto");
-    try {
-      setConteggio(await contaFotoInutilizzate());
-      setStato("contate");
-    } catch (e) {
-      toast.error((e as Error).message);
-      setStato("pronto");
-    }
+    await esegui(contaFotoInutilizzate, "contate", "pronto");
   }
 
   async function elimina() {
     setStato("elimino");
-    try {
-      setConteggio(await eliminaFotoInutilizzate());
-      setStato("fatto");
-    } catch (e) {
-      toast.error((e as Error).message);
-      setStato("contate");
-    }
+    await esegui(eliminaFotoInutilizzate, "fatto", "pronto");
   }
 
   return (
