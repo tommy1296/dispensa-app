@@ -1,4 +1,4 @@
-import { ChevronDown, FilePen, Lightbulb, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ChevronDown, FilePen, ChevronLeft, ChevronRight, LayoutGrid, Search, SearchX, SlidersHorizontal, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { RecuperoFotoMancanti } from "@/components/foto-instagram";
 import { IconaTipo } from "@/components/icona-tipo";
@@ -98,15 +98,6 @@ export default async function Elenco({ searchParams }: PageProps<"/">) {
               <Statistica key={t} etichetta={ETICHETTA_TIPO[t]} valore={conteggi[t] ?? 0} className={cn(i === 2 && "hidden sm:block")} />
             ))}
         </dl>
-        <div className="flex items-start gap-3 rounded-xl border border-crema-bordo bg-crema px-4 py-3 lg:max-w-sm">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-terracotta shadow-sm">
-            <Lightbulb className="size-4" />
-          </span>
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.14em] text-ambra uppercase">Promemoria</p>
-            <p className="font-serif text-[15px] leading-snug italic">«A pranzo un piatto da asporto, a cena pane o pita.»</p>
-          </div>
-        </div>
       </div>
 
       {bozze > 0 && (
