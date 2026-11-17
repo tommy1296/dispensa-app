@@ -431,7 +431,7 @@ async function gestisci(req: Request) {
     serverInfo: { name: "dispensa", version: "1.0.0" },
     instructions:
       "Ricettario personale di Tommaso. Regole per comporre i pasti: pranzo e cena = proteina + carboidrato + verdura; colazione = proteina + carboidrato + frutta. " +
-      "Pranzo al lavoro: deve essere trasportabile (adatta_asporto). A pranzo carboidrati come pasta, cous cous, quinoa, farro; a cena pane o pita, non pasta. " +
+      "Usa adatta_asporto solo quando Tommaso chiede un pranzo da asporto. A pranzo carboidrati come pasta, cous cous, quinoa, farro; a cena pane o pita, non pasta. " +
       "Carne rossa e affettati circa 2 volte al mese. Proponi solo ricette salvate, salvo richiesta esplicita, e dai sempre il link alla fonte.",
   });
   return withMcpAuth(handler, verificaToken, { required: true, requiredScopes: ["ricette"] })(req);
