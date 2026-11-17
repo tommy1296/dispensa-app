@@ -27,6 +27,8 @@ MCP che permette a Claude di cercarle, aggiungerle e registrare i pasti scelti.
 | `leggi_ricetta` | Scheda completa |
 | `aggiungi_ricetta` | Nuova ricetta |
 | `modifica_ricetta` | Aggiorna i campi indicati |
+| `elenca_bozze` | Tutte le bozze con la scheda intera, per riscriverle |
+| `promuovi_bozza` | Salva una bozza riscritta e la trasforma in ricetta vera |
 | `registra_pasto` | Aggiunge un pasto allo storico |
 | `storico_pasti` | Ultimi pasti e conteggio carne rossa/affettati del mese |
 
@@ -45,7 +47,8 @@ MCP che permette a Claude di cercarle, aggiungerle e registrare i pasti scelti.
 
 Mandi al bot il link di un post o reel Instagram e lui crea una **bozza** con
 didascalia e copertina. Le bozze stanno nella pagina *Bozze* e restano fuori dalla
-ricerca (e dalle proposte di Claude) finché non le completi.
+ricerca (e dalle proposte di Claude) finché non le completi, a mano oppure
+chiedendo a Claude di leggerle con `elenca_bozze` e salvarle con `promuovi_bozza`.
 
 1. Su Telegram scrivi a **@BotFather** → `/newbot` → scegli nome e username. Copia il token.
 2. Su Vercel (*Settings > Environment Variables*) aggiungi `TELEGRAM_BOT_TOKEN` e

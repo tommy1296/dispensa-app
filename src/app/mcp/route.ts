@@ -15,8 +15,10 @@ import {
   cercaRicette,
   creaRicetta,
   eCarneRossa,
+  leggiBozze,
   leggiRicetta,
   leggiStorico,
+  promuoviBozza,
   ricetteSenzaFotoInstagram,
   registraPasto,
   type DatiRicetta,
@@ -82,6 +84,9 @@ const campiRicetta = {
     .describe("true = bozza da completare (esclusa dalla ricerca normale). Quando completi una bozza mettila a false"),
 };
 
+// Per promuovere una bozza: tutti i campi tranne "bozza", che diventa false da sé.
+const { bozza: _bozza, ...campiPromozione } = campiRicetta; // eslint-disable-line @typescript-eslint/no-unused-vars
+
 function registraStrumenti(server: McpServer, sito: string) {
   const db = supabaseAdmin();
 
@@ -92,8 +97,8 @@ function registraStrumenti(server: McpServer, sito: string) {
       description:
         "Cerca nel ricettario di Tommaso con testo libero e filtri. Restituisce un elenco sintetico; usa leggi_ricetta per ingredienti e procedimento. " +
         "Per proporre pasti usa ordine 'casuale' ed escludi_slug con le ricette mangiate di recente (vedi storico_pasti). " +
-        "Le bozze (salvate al volo dal bot Telegram, con la sola didascalia del post) sono escluse: per elencarle usa bozze=true. " +
-        "Per completare una bozza: leggi_ricetta, poi modifica_ricetta con titolo, ingredienti, procedimento in passaggi, etichette e bozza=false.",
+        "Le bozze (salvate al volo dal bot Telegram, con la sola didascalia del post) sono escluse: " +
+        "per leggerle per intero usa elenca_bozze, per trasformarle in ricette vere promuovi_bozza.",
       inputSchema: z.object({
         testo: z.string().optional().describe("Parole da cercare in titolo, ingredienti e procedimento"),
         tipi: z.array(z.enum(TIPI)).optional().describe("pasto = pranzo o cena"),
@@ -210,6 +215,87 @@ function registraStrumenti(server: McpServer, sito: string) {
         return testo({ aggiornata: true, slug: r.slug, link_app: `${sito}/ricette/${r.slug}` });
       } catch (e) {
         return errore(`Modifica non riuscita: ${(e as Error).message}`);
+      }
+    },
+  );
+
+  server.registerTool(
+    "elenca_bozze",
+    {
+      title: "Elenca bozze",
+      description:
+        "Tutte le bozze da completare (salvate al volo dal bot Telegram), dalla più recente, con la scheda intera: " +
+        "titolo provvisorio, ingredienti e procedimento divisi alla meglio dalla didascalia del post, note, fonte e foto. " +
+        "Servono per riscriverle bene e poi salvarle con promuovi_bozza. Se totale supera le mostrate, richiamalo con offset.",
+      inputSchema: z.object({
+        limite: z.number().int().min(1).max(50).optional().describe("Default 20"),
+        offset: z.number().int().min(0).optional(),
+      }),
+      annotations: { readOnlyHint: true },
+    },
+    async ({ limite, offset }) => {
+      try {
+        const r = await leggiBozze(db, { limite: limite ?? 20, offset });
+        return testo({
+          totale: r.totale,
+          mostrate: r.bozze.length,
+          offset: r.offset,
+          bozze: r.bozze.map((b) => ({
+            slug: b.slug,
+            titolo: b.titolo,
+            tipo: b.tipo,
+            ingredienti: b.ingredienti,
+            procedimento: b.procedimento,
+            note: b.note,
+            fonte_tipo: b.fonte_tipo,
+            fonte_url: b.fonte_url,
+            immagine_url: b.immagine_url,
+            creata_il: b.creata_il,
+            link_app: `${sito}/ricette/${b.slug}`,
+          })),
+        });
+      } catch (e) {
+        return errore(`Lettura delle bozze non riuscita: ${(e as Error).message}`);
+      }
+    },
+  );
+
+  server.registerTool(
+    "promuovi_bozza",
+    {
+      title: "Promuovi bozza a ricetta",
+      description:
+        "Trasforma una bozza in una ricetta vera, che da quel momento compare nella ricerca e nelle proposte dei pasti. " +
+        "Passa la ricetta riscritta per intero: titolo vero, tipo, ingredienti uno per voce con le dosi, procedimento in passaggi numerati, " +
+        "e le etichette (proteina, componenti, asporto, tempo, vegana...) dedotte da ingredienti e procedimento. " +
+        "Togli dal testo hashtag, emoji, menzioni e inviti a seguire il profilo; non inventare dosi che la didascalia non dà " +
+        "(in quel caso metti scheda_parziale=true). Fonte e foto restano quelle della bozza. Lo slug si rifà dal nuovo titolo.",
+      inputSchema: z.object({
+        slug: z.string().describe("Slug attuale della bozza (da elenca_bozze)"),
+        ...campiPromozione,
+        ingredienti: z.array(z.string()).min(1).describe("Un ingrediente per voce, con la dose se nota"),
+        procedimento: z.string().min(1).describe("Passaggi numerati in Markdown"),
+        rifai_slug: z.boolean().optional().describe("Default true: lo slug nuovo viene dal titolo riscritto"),
+      }),
+    },
+    async ({ slug, rifai_slug, ...dati }) => {
+      try {
+        const r = await promuoviBozza(
+          db,
+          slug,
+          { scheda_parziale: false, etichette_stimate: true, ...dati } as DatiRicetta,
+          { rifaiSlug: rifai_slug },
+        );
+        return testo({
+          promossa: true,
+          slug: r.slug,
+          slug_precedente: r.slug === slug ? undefined : slug,
+          titolo: r.titolo,
+          pasto_completo: r.pasto_completo,
+          link_app: `${sito}/ricette/${r.slug}`,
+        });
+      } catch (e) {
+        return errore(`Promozione non riuscita: ${(e as Error).message}`);
       }
     },
   );
