@@ -256,11 +256,13 @@ export async function leggiRicetta(db: SupabaseClient, slug: string) {
   return data as Ricetta | null;
 }
 
-async function slugLibero(db: SupabaseClient, titolo: string) {
+/** Primo slug libero per il titolo; `attuale` è lo slug della ricetta stessa, che si può riusare. */
+async function slugLibero(db: SupabaseClient, titolo: string, attuale?: string) {
   const base = slugDa(titolo);
   const { data, error } = await db.from("ricette").select("slug").like("slug", `${base}%`);
   if (error) throw new Error(error.message);
   const usati = new Set((data ?? []).map((r) => r.slug));
+  if (attuale) usati.delete(attuale);
   if (!usati.has(base)) return base;
   let n = 2;
   while (usati.has(`${base}-${n}`)) n++;
@@ -307,6 +309,48 @@ export async function contaPerTipo(db: SupabaseClient) {
     }),
   );
   return conteggi;
+}
+
+/** Bozze con la scheda intera, dalla più recente, per riscriverle. */
+export async function leggiBozze(db: SupabaseClient, f: { limite?: number; offset?: number } = {}) {
+  const limite = Math.min(Math.max(f.limite ?? 20, 1), 100);
+  const offset = Math.max(f.offset ?? 0, 0);
+  const { data, error, count } = await db
+    .from("ricette")
+    .select(COLONNE_RICETTA, { count: "exact" })
+    .eq("bozza", true)
+    .order("creata_il", { ascending: false })
+    .order("id", { ascending: false })
+    .range(offset, offset + limite - 1);
+  if (error) throw new Error(error.message);
+  return { bozze: (data ?? []) as Ricetta[], totale: count ?? 0, limite, offset };
+}
+
+/**
+ * Trasforma una bozza in ricetta vera: salva i campi riscritti e la toglie dalle bozze.
+ * Se il titolo cambia, lo slug (nato dalla didascalia) si rifà dal nuovo titolo.
+ */
+export async function promuoviBozza(
+  db: SupabaseClient,
+  slug: string,
+  dati: DatiRicetta,
+  opzioni: { rifaiSlug?: boolean } = {},
+) {
+  const attuale = await leggiRicetta(db, slug);
+  if (!attuale) throw new Error(`Nessuna ricetta con slug "${slug}"`);
+  if (!attuale.bozza) throw new Error(`"${slug}" non è una bozza: per cambiarla usa modifica_ricetta`);
+  const titolo = dati.titolo?.trim() || attuale.titolo;
+  const nuovoSlug = opzioni.rifaiSlug === false ? slug : await slugLibero(db, titolo, slug);
+  const { data, error } = await db
+    .from("ricette")
+    .update({ ...dati, titolo, slug: nuovoSlug, bozza: false })
+    .eq("slug", slug)
+    .eq("bozza", true)
+    .select(COLONNE_RICETTA)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error(`"${slug}" non è più una bozza`);
+  return data as Ricetta;
 }
 
 export async function contaBozze(db: SupabaseClient) {
